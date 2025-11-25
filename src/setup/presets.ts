@@ -14,7 +14,7 @@ export const developmentPreset = defineConfig({
     environment: 'node',
     passWithNoTests: true,
     watch: true,
-   restoreMocks: true,
+    restoreMocks: true,
     clearMocks: true,
     mockReset: true,
     coverage: {
@@ -97,13 +97,7 @@ export const reactPreset = defineConfig({
       enabled: true,
       provider: 'v8',
       reporter: ['text', 'html'],
-      exclude: [
-        'node_modules/',
-        'dist/',
-        '**/*.test.tsx',
-        '**/*.spec.tsx',
-        '**/*.config.ts',
-      ],
+      exclude: ['node_modules/', 'dist/', '**/*.test.tsx', '**/*.spec.tsx', '**/*.config.ts'],
     },
   },
 }) as UserConfig;

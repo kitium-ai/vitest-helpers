@@ -6,11 +6,13 @@
 /**
  * Browser test setup helper
  */
-export function setupBrowserTest(options: {
-  provider?: 'playwright' | 'webdriverio';
-  browser?: 'chromium' | 'firefox' | 'webkit';
-  headless?: boolean;
-} = {}) {
+export function setupBrowserTest(
+  options: {
+    provider?: 'playwright' | 'webdriverio';
+    browser?: 'chromium' | 'firefox' | 'webkit';
+    headless?: boolean;
+  } = {}
+) {
   const { provider = 'playwright', browser = 'chromium', headless = true } = options;
 
   return {

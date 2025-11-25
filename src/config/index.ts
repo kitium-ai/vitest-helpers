@@ -44,9 +44,7 @@ export function createKitiumVitestConfig(options: KitiumVitestConfigOptions = {}
   }
 
   const optionConfig: UserConfig =
-    Object.keys(testOverrides).length > 0
-      ? ({ test: testOverrides } as UserConfig)
-      : {};
+    Object.keys(testOverrides).length > 0 ? ({ test: testOverrides } as UserConfig) : {};
 
   const overrideConfig: UserConfig = overrides ?? {};
 
@@ -60,4 +58,3 @@ export function extendKitiumVitestConfig(overrides: UserConfig): UserConfig {
 export function loadKitiumVitestBaseConfig(): UserConfig {
   return mergeConfig(loadBaseVitestConfig(), {});
 }
-

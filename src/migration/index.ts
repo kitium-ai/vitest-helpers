@@ -1,6 +1,6 @@
 /**
  * Migration guide from Jest to Vitest
- * 
+ *
  * This module provides helpers and documentation for migrating from Jest to Vitest
  */
 
@@ -9,15 +9,15 @@
  */
 export const JestToVitestMapping = {
   // Test functions
-  'describe': 'describe (same)',
+  describe: 'describe (same)',
   'it/test': 'it/test (same)',
-  'beforeEach': 'beforeEach (same)',
-  'afterEach': 'afterEach (same)',
-  'beforeAll': 'beforeAll (same)',
-  'afterAll': 'afterAll (same)',
+  beforeEach: 'beforeEach (same)',
+  afterEach: 'afterEach (same)',
+  beforeAll: 'beforeAll (same)',
+  afterAll: 'afterAll (same)',
 
   // Assertions
-  'expect': 'expect (same, with some additions)',
+  expect: 'expect (same, with some additions)',
   'expect.assertions': 'expect.assertions (same)',
   'expect.hasAssertions': 'expect.hasAssertions (same)',
 
@@ -55,7 +55,9 @@ export const migrationSteps = [
 /**
  * Configuration migration helper
  */
-export function convertJestConfigToVitest(jestConfig: Record<string, unknown>): Record<string, unknown> {
+export function convertJestConfigToVitest(
+  jestConfig: Record<string, unknown>
+): Record<string, unknown> {
   const vitestConfig: Record<string, unknown> = {
     test: {},
   };
@@ -79,7 +81,7 @@ export function convertJestConfigToVitest(jestConfig: Record<string, unknown>): 
       const existingTestConfig = (vitestConfig['test'] as Record<string, any>) ?? {};
       vitestConfig['test'] = existingTestConfig;
       let current: Record<string, any> = existingTestConfig;
-      
+
       for (let i = 0; i < keys.length - 1; i++) {
         const key = keys[i];
         if (!key) {
@@ -90,7 +92,7 @@ export function convertJestConfigToVitest(jestConfig: Record<string, unknown>): 
         }
         current = current[key];
       }
-      
+
       if (!vitestPath.includes('use Vite')) {
         const targetKey = keys[keys.length - 1];
         if (targetKey) {

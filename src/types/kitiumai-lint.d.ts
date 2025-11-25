@@ -4,4 +4,3 @@ declare module '@kitiumai/lint/eslint/jest.js' {
   const config: Linter.FlatConfig;
   export default config;
 }
-

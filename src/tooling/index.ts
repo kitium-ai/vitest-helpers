@@ -1,10 +1,5 @@
 import path from 'node:path';
-import {
-  findFiles,
-  getProjectRoot,
-  log,
-  pathExists,
-} from '@kitiumai/scripts/utils';
+import { findFiles, getProjectRoot, log, pathExists } from '@kitiumai/scripts/utils';
 
 const DEFAULT_PATTERN = /\.(test|spec)\.(ts|tsx|js|jsx)$/i;
 
@@ -20,29 +15,28 @@ interface DiscoveryOptions {
   pattern?: RegExp;
 }
 
-export async function discoverVitestTestFiles(
-  options: DiscoveryOptions = {}
-): Promise<string[]> {
+export async function discoverVitestTestFiles(options: DiscoveryOptions = {}): Promise<string[]> {
   const root = options.root ?? getProjectRoot();
   const pattern = options.pattern ?? DEFAULT_PATTERN;
   return findFiles(root, pattern);
 }
 
-export async function diagnoseVitestWorkspace(options: {
-  root?: string;
-  pattern?: RegExp;
-  configFilenames?: string[];
-} = {}): Promise<VitestWorkspaceDiagnostics> {
+export async function diagnoseVitestWorkspace(
+  options: {
+    root?: string;
+    pattern?: RegExp;
+    configFilenames?: string[];
+  } = {}
+): Promise<VitestWorkspaceDiagnostics> {
   const root = options.root ?? getProjectRoot();
   const pattern = options.pattern ?? DEFAULT_PATTERN;
-  const configFilenames =
-    options.configFilenames ?? [
-      'vitest.config.ts',
-      'vitest.config.mts',
-      'vitest.config.js',
-      'vitest.workspace.ts',
-      'vitest.workspace.mjs',
-    ];
+  const configFilenames = options.configFilenames ?? [
+    'vitest.config.ts',
+    'vitest.config.mts',
+    'vitest.config.js',
+    'vitest.workspace.ts',
+    'vitest.workspace.mjs',
+  ];
 
   const [testFiles, configPath] = await Promise.all([
     discoverVitestTestFiles({ root, pattern }),
@@ -83,4 +77,3 @@ async function resolveConfigPath(root: string, candidates: string[]): Promise<st
 
   return null;
 }
-

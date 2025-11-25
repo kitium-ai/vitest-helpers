@@ -9,10 +9,12 @@ npm install @kitiumai/vitest-helpers vitest
 ```
 
 **Peer Dependencies:**
+
 - `vitest` ^1.0.0 || ^2.0.0
 - `typescript` ^5.0.0
 
 **Optional:**
+
 - `@vitest/ui` - For UI mode
 - `@vitest/browser` - For browser testing
 

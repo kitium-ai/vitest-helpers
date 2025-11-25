@@ -70,7 +70,11 @@
       "default": "./dist/tooling/index.js"
     }
   },
-  "files": ["dist", "README.md", "CHANGELOG.md"],
+  "files": [
+    "dist",
+    "README.md",
+    "CHANGELOG.md"
+  ],
   "scripts": {
     "build": "tsc -b",
     "build:clean": "npm run clean && npm run build",

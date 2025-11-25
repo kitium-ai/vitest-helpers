@@ -26,6 +26,7 @@ All notable changes to this project will be documented in this file.
 ### Features
 
 #### Configuration Presets
+
 - `VitestPresets.development` - Fast feedback for local development
 - `VitestPresets.ci` - Comprehensive testing for CI/CD
 - `VitestPresets.library` - Optimized for library packages
@@ -33,29 +34,34 @@ All notable changes to this project will be documented in this file.
 - `VitestPresets.vue` - Pre-configured for Vue applications
 
 #### Workspace Helpers
+
 - `createMonorepoWorkspace()` - Simple monorepo setup
 - `createLayeredWorkspace()` - Separate unit/integration tests
 - `setupWorkspace()` - Custom workspace configuration
 
 #### Test Utilities
+
 - `createMockFn()` - Framework-agnostic mock functions
 - `createHttpMockManager()` - HTTP request/response mocking
 - `waitFor()`, `retry()`, `sleep()` - Async test utilities
 - `createBuilder()`, `createFactory()` - Test data generation
 
 #### Tracing
+
 - `traceTest()` - Trace test operations
 - `traceChild()` - Trace child operations
 - `startTestTrace()` / `endTestTrace()` - Test context management
 - `setupTestTracing()` - Automatic tracing setup
 
 #### Migration Support
+
 - Jest API mapping reference
 - Configuration converter
 - Code transformation examples
 - Migration checklist
 
 ### Documentation
+
 - Comprehensive README with examples
 - Migration guide from Jest
 - Usage examples for all features
