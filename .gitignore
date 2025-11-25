@@ -1,0 +1,10 @@
+node_modules
+dist
+coverage
+.turbo
+pnpm-lock.yaml
+*.tsbuildinfo
+*.log
+.DS_Store
+.idea/
+node_modules/
