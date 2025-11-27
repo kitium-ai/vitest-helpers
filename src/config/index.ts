@@ -1,28 +1,65 @@
-import { createRequire } from 'node:module';
+import baseVitestConfig from '@kitiumai/config/vitest.config.base.js';
 import { mergeConfig } from 'vitest/config';
 import type { UserConfig } from 'vitest';
 
-const require = createRequire(import.meta.url);
-
-type MaybeConfigModule = UserConfig & { default?: UserConfig };
-
-function loadBaseVitestConfig(): UserConfig {
-  const moduleExport = require('@kitiumai/config/vitest.config.base.js') as MaybeConfigModule;
-  return (moduleExport.default ?? moduleExport) as UserConfig;
-}
-
 type TestOverrides = Record<string, unknown>;
 
+export type KitiumVitestPresetName = 'local' | 'ci' | 'library' | 'browser';
+
 export interface KitiumVitestConfigOptions {
+  preset?: KitiumVitestPresetName;
   environment?: string;
   coverage?: boolean | Record<string, unknown>;
   reporters?: unknown;
   overrides?: UserConfig;
+  setupFiles?: string[];
+  projectName?: string;
 }
 
+const presetTestConfigs: Record<KitiumVitestPresetName, UserConfig> = {
+  local: {
+    test: {
+      name: 'kitium-local',
+      environment: 'node',
+    },
+  },
+  ci: {
+    test: {
+      name: 'kitium-ci',
+      environment: 'node',
+      coverage: { reporter: ['text', 'lcov', 'html'] },
+      reporters: ['default'],
+    },
+  },
+  library: {
+    test: {
+      name: 'kitium-library',
+      environment: 'node',
+      coverage: { reporter: ['text', 'lcov'] },
+      reporters: ['default'],
+    },
+  },
+  browser: {
+    test: {
+      name: 'kitium-browser',
+      environment: 'jsdom',
+      reporters: ['default'],
+    },
+  },
+};
+
 export function createKitiumVitestConfig(options: KitiumVitestConfigOptions = {}): UserConfig {
-  const { environment, coverage, reporters, overrides } = options;
-  const baseConfig = loadBaseVitestConfig();
+  const {
+    preset = 'local',
+    environment,
+    coverage,
+    reporters,
+    overrides,
+    setupFiles,
+    projectName,
+  } = options;
+
+  const baseConfig = mergeConfig(loadBaseVitestConfig(), presetTestConfigs[preset]);
 
   const testOverrides: Partial<TestOverrides> = {};
 
@@ -43,6 +80,14 @@ export function createKitiumVitestConfig(options: KitiumVitestConfigOptions = {}
     testOverrides['reporters'] = reporters;
   }
 
+  if (setupFiles) {
+    testOverrides['setupFiles'] = setupFiles;
+  }
+
+  if (projectName) {
+    testOverrides['name'] = projectName;
+  }
+
   const optionConfig: UserConfig =
     Object.keys(testOverrides).length > 0 ? ({ test: testOverrides } as UserConfig) : {};
 
@@ -57,4 +102,15 @@ export function extendKitiumVitestConfig(overrides: UserConfig): UserConfig {
 
 export function loadKitiumVitestBaseConfig(): UserConfig {
   return mergeConfig(loadBaseVitestConfig(), {});
+}
+
+export const KitiumVitestPresets: Record<KitiumVitestPresetName, () => UserConfig> = {
+  local: () => createKitiumVitestConfig({ preset: 'local' }),
+  ci: () => createKitiumVitestConfig({ preset: 'ci' }),
+  library: () => createKitiumVitestConfig({ preset: 'library' }),
+  browser: () => createKitiumVitestConfig({ preset: 'browser' }),
+};
+
+function loadBaseVitestConfig(): UserConfig {
+  return baseVitestConfig as UserConfig;
 }

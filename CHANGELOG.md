@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### Added
+
+- Opinionated Vitest config presets for local, CI, library, and browser projects, including hooks for setup files and project naming.
+- Unified compatibility exports that include logger utilities alongside mocks, fixtures, async helpers, and HTTP mocks.
+
+### Changed
+
+- Documentation now emphasizes Vitest-first workflows with deterministic fixture and factory guidance inspired by the competitive evaluation.
+- Competitive evaluation notes capture implementation status and minimal Vitest config templates for quick adoption.
+
+### Removed
+
+- Jest compatibility facade to keep the package focused on Vitest.
+
 ## [1.0.0] - 2025-11-25
 
 ### Added

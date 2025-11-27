@@ -1,48 +1,77 @@
 import { vi } from 'vitest';
 
 /**
- * Compatibility layer for using Jest-style patterns with Vitest
- * Helps with migration from Jest to Vitest
+ * Compatibility layer for using Vitest-specific helpers alongside test-core utilities.
  */
 
-// Re-export test-core utilities that work with both Jest and Vitest
+// Re-export test-core utilities that integrate cleanly with Vitest
 export {
   createMockFn,
   createMockObject,
+  restoreSpy,
   spyOn,
   type MockFunction,
-} from '@kitiumai/test-core/mocks';
+} from '@kitiumai/test-core';
 
 export {
   createFixture,
   FixtureManager,
   getGlobalFixtureManager,
+  resetGlobalFixtureManager,
   type Fixture,
-} from '@kitiumai/test-core/fixtures';
+  type FixtureSetup,
+  type FixtureTeardown,
+} from '@kitiumai/test-core';
 
 export {
   createHttpMockManager,
+  getGlobalHttpMockManager,
+  HttpMockManager,
   HttpResponses,
+  resetGlobalHttpMockManager,
+  type HttpMockHandler,
   type HttpMockRequest,
   type HttpMockResponse,
-} from '@kitiumai/test-core/http';
+} from '@kitiumai/test-core';
 
 export {
   waitFor,
   waitForValue,
   retry,
   sleep,
+  parallelLimit,
   createDeferred,
   type Deferred,
-} from '@kitiumai/test-core/async';
+} from '@kitiumai/test-core';
 
 export {
   createBuilder,
+  createBuilderFactory,
+  Builder,
+  BuilderGenerators,
+  Factory,
+  Sequence,
+} from '@kitiumai/test-core';
+
+export {
   createFactory,
-  Generators,
-  type Builder,
-  type Factory,
-} from '@kitiumai/test-core/builders';
+  createFactoryWithBuilder,
+  DataGenerators,
+  Factories,
+  type Generator,
+  type PartialFactory,
+} from '@kitiumai/test-core';
+
+export {
+  createLogger,
+  expectLogs,
+  getTestLogger,
+  LogLevel,
+  type GetLogsOptions,
+  type LogExpectation,
+  type TestLogEntry,
+  type TestLogger,
+} from '@kitiumai/test-core';
 
 /**
  * Vitest-specific adaptations
@@ -55,13 +84,4 @@ export function createVitestMock<T extends (...args: any[]) => any>(
   implementation?: T
 ): ReturnType<typeof vi.fn<T>> {
   return vi.fn(implementation);
-}
-
-/**
- * Setup Jest compatibility mode
- * Provides Jest-like APIs in Vitest
- */
-export function setupJestCompatibility(): void {
-  // Vitest already provides Jest-compatible APIs via globals
-  // This function is a placeholder for any additional compatibility needed
 }

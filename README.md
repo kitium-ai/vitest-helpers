@@ -22,7 +22,7 @@ npm install @kitiumai/vitest-helpers vitest
 
 - 🎯 **Config Presets** - Pre-configured setups for common scenarios
 - 🔧 **Workspace Support** - Multi-project testing made easy
-- 🔄 **Jest Migration** - Compatibility layer for easy migration
+- 🧪 **Vitest-first Helpers** - Consistent wrappers for mocks, fixtures, and async utils
 - 🌐 **Browser Mode** - Browser testing helpers
 - ⚡ **Benchmarks** - Performance testing utilities
 - 📊 **Custom Reporters** - Enhanced test output
@@ -34,9 +34,76 @@ npm install @kitiumai/vitest-helpers vitest
 
 ```typescript
 // vitest.config.ts
-import { VitestPresets } from '@kitiumai/vitest-helpers';
+import { KitiumVitestPresets } from '@kitiumai/vitest-helpers';
 
-export default VitestPresets.development; // or .ci, .library, .react, .vue
+export default KitiumVitestPresets.ci(); // or .local, .library, .browser
+```
+
+### Vitest convenience helpers
+
+Use the compatibility helpers to keep mocks, fixtures, and async utilities consistent across projects:
+
+```typescript
+import { createVitestMock, createFixture, waitFor } from '@kitiumai/vitest-helpers';
+
+const fetchMock = createVitestMock(() => Promise.resolve({ ok: true }));
+
+const fixture = createFixture({
+  setup: async () => ({ fetchMock }),
+  teardown: async () => fetchMock.mockReset(),
+});
+
+await waitFor(() => expect(fetchMock).toHaveBeenCalled());
+```
+
+### Fixture and data factory workflow
+
+Compose deterministic data and reusable fixtures to keep suites predictable across repos:
+
+```typescript
+import {
+  createFixture,
+  createFactory,
+  Builder,
+  createLogger,
+  expectLogs,
+} from '@kitiumai/vitest-helpers';
+
+const userFactory = createFactory({
+  name: () => 'Ada Lovelace',
+  email: ({ name }) => `${name.toLowerCase().replace(/\s/g, '.')}@example.com`,
+});
+
+const logger = createLogger({ level: 'info' });
+
+const userFixture = createFixture({
+  setup: async () => ({ user: userFactory.build() }),
+  teardown: async () => logger.flush?.(),
+});
+
+const builder = new Builder(userFactory).sequence('id');
+
+it('creates a user deterministically', async () => {
+  const { user } = await userFixture.setup();
+  expect(user.email).toContain('@example.com');
+
+  await expectLogs(logger, [{ level: 'info' }]);
+});
+```
+
+### Minimal Vitest config template
+
+Ship a single config file and keep overrides in-code:
+
+```typescript
+// vitest.config.ts
+import { createKitiumVitestConfig } from '@kitiumai/vitest-helpers';
+
+export default createKitiumVitestConfig({
+  preset: process.env.CI ? 'ci' : 'local',
+  projectName: 'web-app',
+  setupFiles: ['./test/setup.ts'],
+});
 ```
 
 ## License
