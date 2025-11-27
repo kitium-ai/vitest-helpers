@@ -3,6 +3,7 @@ import { mergeConfig } from 'vitest/config';
 import type { UserConfig } from 'vitest';
 
 type TestOverrides = Record<string, unknown>;
+type VitestConfigWithTest = UserConfig & { test?: Record<string, unknown> };
 
 export type KitiumVitestPresetName = 'local' | 'ci' | 'library' | 'browser';
 
@@ -16,7 +17,7 @@ export interface KitiumVitestConfigOptions {
   projectName?: string;
 }
 
-const presetTestConfigs: Record<KitiumVitestPresetName, UserConfig> = {
+const presetTestConfigs: Record<KitiumVitestPresetName, VitestConfigWithTest> = {
   local: {
     test: {
       name: 'kitium-local',
