@@ -2,8 +2,8 @@
  * Vitest setup utilities
  */
 
-export * from './presets';
-export * from './workspace';
+export * from './presets.js';
+export * from './workspace.js';
 
 /**
  * Global test setup hook
