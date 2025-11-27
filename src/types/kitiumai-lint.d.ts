@@ -1,6 +1,5 @@
-declare module '@kitiumai/lint/eslint/jest.js' {
+declare module '@kitiumai/lint' {
   import type { Linter } from 'eslint';
 
-  const config: Linter.FlatConfig;
-  export default config;
+  export const eslintJestConfig: Linter.FlatConfig;
 }

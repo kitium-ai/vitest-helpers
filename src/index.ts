@@ -3,12 +3,8 @@
  * Vitest testing helpers with framework-specific utilities
  */
 
-// Re-export framework-agnostic utilities from test-core
-export * from '@kitiumai/test-core/mocks';
-export * from '@kitiumai/test-core/fixtures';
-export * from '@kitiumai/test-core/http';
-export * from '@kitiumai/test-core/async';
-export * from '@kitiumai/test-core/builders';
+// Re-export framework-agnostic utilities from test-core public API
+export * from '@kitiumai/test-core';
 
 // Vitest-specific modules
 export * from './setup';

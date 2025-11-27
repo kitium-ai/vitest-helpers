@@ -1,4 +1,3 @@
-const moduleExport = await import('@kitiumai/lint/eslint/jest');
-const jestConfig = moduleExport.default ?? moduleExport;
+import { eslintJestConfig } from '@kitiumai/lint';
 
-export default jestConfig;
+export default eslintJestConfig;
