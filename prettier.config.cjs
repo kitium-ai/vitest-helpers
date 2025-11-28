@@ -1,3 +1,3 @@
 module.exports = {
-  ...require('@kitiumai/config/prettier'),
+  ...require('@kitiumai/config/prettier.config.cjs'),
 };
