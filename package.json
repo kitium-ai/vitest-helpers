@@ -1,6 +1,6 @@
 {
   "name": "@kitiumai/vitest-helpers",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Vitest test helpers with framework-specific utilities - setup, browser testing, benchmarks, and migration tools",
   "type": "module",
   "sideEffects": false,
@@ -86,6 +86,7 @@
     "!dist/**/__tests__/**",
     "!dist/**/*.test.*",
     "!dist/**/*.spec.*",
+    "types.d.ts",
     "README.md",
     "CHANGELOG.md",
     "LICENSE"
@@ -172,7 +173,8 @@
     "release": "pnpm version && pnpm install --lockfile-only"
   },
   "dependencies": {
-    "@kitiumai/logger": "^2.0.0"
+    "@kitiumai/logger": "^2.0.1",
+    "@kitiumai/test-core": "^2.0.1"
   },
   "peerDependencies": {
     "vitest": "^2.0.0",
@@ -187,10 +189,9 @@
     }
   },
   "devDependencies": {
-    "@kitiumai/config": "^2.0.0",
-    "@kitiumai/lint": "^2.0.0",
+    "@kitiumai/config": "^2.0.1",
+    "@kitiumai/lint": "^2.0.1",
     "@kitiumai/scripts": "^1.0.0",
-    "@kitiumai/test-core": "^2.0.0",
     "@changesets/cli": "^2.27.1",
     "@types/node": "^24.10.1",
     "@typescript-eslint/eslint-plugin": "^8.16.0",
