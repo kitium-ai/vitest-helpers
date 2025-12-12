@@ -2,7 +2,11 @@
  * Built-in monitoring plugin for test metrics and performance tracking
  */
 
+import { createLogger } from '@kitiumai/logger';
+
 import type { VitestPlugin } from '../index';
+
+const logger = createLogger('development', { serviceName: 'monitoring' });
 
 export type MonitoringConfig = {
   enabled: boolean;
@@ -69,9 +73,9 @@ export const monitoringPlugin: VitestPlugin = {
       };
     },
 
-    logMetric: (name: string, value: any) => {
+    logMetric: (name: string, value: unknown) => {
       if (defaultConfig.reporting.console) {
-        console.log(`[MONITORING] ${name}:`, value);
+        logger.info(`${name}:`, value);
       }
     },
   },

@@ -166,7 +166,7 @@ Choose a command:
       case 'list-configs': {
         const configs = collaborationManager.listConfigs();
         this.output(`Found ${configs.length} shared configurations:`);
-        configs.forEach((config) => {
+        configs.forEach((config: any) => {
           this.output(`- ${config.name} (${config.team})`);
         });
         break;
@@ -174,7 +174,7 @@ Choose a command:
       case 'list-reports': {
         const reports = collaborationManager.listReports();
         this.output(`Found ${reports.length} test reports:`);
-        reports.forEach((report) => {
+        reports.forEach((report: any) => {
           this.output(`- ${report.suite} (${report.team})`);
         });
         break;

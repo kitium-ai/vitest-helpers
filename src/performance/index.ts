@@ -7,6 +7,10 @@ import * as crypto from 'node:crypto';
 import { promises as fs } from 'node:fs';
 import * as path from 'node:path';
 
+import { createLogger } from '@kitiumai/logger';
+
+const logger = createLogger('development', { serviceName: 'performance' });
+
 export type ParallelConfig = {
   maxWorkers: number;
   timeout: number;
@@ -244,7 +248,7 @@ export class MemoryOptimizer {
     const intervalId = setInterval(() => {
       const stats = this.getMemoryStats();
       if (stats.shouldGC) {
-        console.log('[MEMORY] High memory usage detected:', stats);
+        logger.warn('High memory usage detected:', stats);
         void this.optimize();
       }
     }, interval);

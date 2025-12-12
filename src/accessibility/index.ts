@@ -2,6 +2,10 @@
  * Accessibility testing utilities for WCAG compliance and a11y checks
  */
 
+// Error messages
+const HTML_LANG_MESSAGE = 'HTML element must have a lang attribute';
+const IMAGE_ALT_MESSAGE = 'Images must have alt text';
+
 export type AccessibilityRule = {
   id: string;
   name: string;
@@ -71,29 +75,29 @@ export class AccessibilityTester {
     };
   }
 
-  async testHTML(html: string): Promise<AccessibilityResult> {
-    await Promise.resolve();
-
-    // In a real implementation, this would parse HTML and test each element
-    // For now, we'll simulate with basic checks
-    const violations: AccessibilityViolation[] = [];
-    const passes: string[] = [];
-    const incomplete: string[] = [];
-    const inapplicable: string[] = [];
-
-    // Basic checks
+  private checkHtmlLang(
+    html: string,
+    violations: AccessibilityViolation[],
+    passes: string[]
+  ): void {
     if (!html.includes('lang=')) {
       violations.push({
         rule: 'html-lang',
         impact: 'serious',
-        description: 'HTML element must have a lang attribute',
+        description: HTML_LANG_MESSAGE,
         help: 'Add lang attribute to the html element',
         helpUrl: 'https://dequeuniversity.com/rules/axe/4.4/html-lang',
       });
     } else {
       passes.push('html-lang');
     }
+  }
 
+  private checkDocumentTitle(
+    html: string,
+    violations: AccessibilityViolation[],
+    passes: string[]
+  ): void {
     if (!html.includes('<title>')) {
       violations.push({
         rule: 'document-title',
@@ -105,8 +109,13 @@ export class AccessibilityTester {
     } else {
       passes.push('document-title');
     }
+  }
 
-    // Check for images without alt text
+  private checkImageAlt(
+    html: string,
+    violations: AccessibilityViolation[],
+    passes: string[]
+  ): void {
     const imgRegex = /<img[^>]*>/gi;
     const images = html.match(imgRegex) || [];
     images.forEach((img) => {
@@ -114,7 +123,7 @@ export class AccessibilityTester {
         violations.push({
           rule: 'image-alt',
           impact: 'critical',
-          description: 'Images must have alt text',
+          description: IMAGE_ALT_MESSAGE,
           element: img,
           help: 'Add alt attribute to img elements',
           helpUrl: 'https://dequeuniversity.com/rules/axe/4.4/image-alt',
@@ -123,6 +132,19 @@ export class AccessibilityTester {
         passes.push('image-alt');
       }
     });
+  }
+
+  async testHTML(html: string): Promise<AccessibilityResult> {
+    await Promise.resolve();
+
+    const violations: AccessibilityViolation[] = [];
+    const passes: string[] = [];
+    const incomplete: string[] = [];
+    const inapplicable: string[] = [];
+
+    this.checkHtmlLang(html, violations, passes);
+    this.checkDocumentTitle(html, violations, passes);
+    this.checkImageAlt(html, violations, passes);
 
     const score = this.calculateScore(violations, passes);
 
@@ -160,61 +182,71 @@ export class AccessibilityTester {
     return Math.max(0, violationScore);
   }
 
+  private createHtmlLangRule(): AccessibilityRule {
+    return {
+      id: 'html-lang',
+      name: 'HTML Language',
+      description: HTML_LANG_MESSAGE,
+      level: 'A',
+      impact: 'serious',
+      check: (element: unknown) => {
+        if (typeof element === 'string') {
+          return element.includes('<html lang=')
+            ? null
+            : {
+                rule: 'html-lang',
+                impact: 'serious',
+                description: HTML_LANG_MESSAGE,
+                help: 'Add lang attribute to the html element',
+              };
+        }
+        return null;
+      },
+    };
+  }
+
+  private createImageAltRule(): AccessibilityRule {
+    return {
+      id: 'image-alt',
+      name: 'Image Alt Text',
+      description: IMAGE_ALT_MESSAGE,
+      level: 'A',
+      impact: 'critical',
+      check: (element: unknown) => {
+        if (typeof element === 'string' && element.includes('<img')) {
+          return element.includes('alt=')
+            ? null
+            : {
+                rule: 'image-alt',
+                impact: 'critical',
+                description: IMAGE_ALT_MESSAGE,
+                help: 'Add alt attribute to img elements',
+              };
+        }
+        return null;
+      },
+    };
+  }
+
+  private createColorContrastRule(): AccessibilityRule {
+    return {
+      id: 'color-contrast',
+      name: 'Color Contrast',
+      description: 'Text must have sufficient color contrast',
+      level: 'AA',
+      impact: 'serious',
+      check: () => {
+        // This would require actual color analysis
+        return null; // Placeholder
+      },
+    };
+  }
+
   private loadDefaultRules(): void {
-    // WCAG 2.1 Level A rules
     this.rules = [
-      {
-        id: 'html-lang',
-        name: 'HTML Language',
-        description: 'HTML element must have a lang attribute',
-        level: 'A',
-        impact: 'serious',
-        check: (element: unknown) => {
-          // Simplified check
-          if (typeof element === 'string') {
-            return element.includes('<html lang=')
-              ? null
-              : {
-                  rule: 'html-lang',
-                  impact: 'serious',
-                  description: 'HTML element must have a lang attribute',
-                  help: 'Add lang attribute to the html element',
-                };
-          }
-          return null;
-        },
-      },
-      {
-        id: 'image-alt',
-        name: 'Image Alt Text',
-        description: 'Images must have alt text',
-        level: 'A',
-        impact: 'critical',
-        check: (element: unknown) => {
-          if (typeof element === 'string' && element.includes('<img')) {
-            return element.includes('alt=')
-              ? null
-              : {
-                  rule: 'image-alt',
-                  impact: 'critical',
-                  description: 'Images must have alt text',
-                  help: 'Add alt attribute to img elements',
-                };
-          }
-          return null;
-        },
-      },
-      {
-        id: 'color-contrast',
-        name: 'Color Contrast',
-        description: 'Text must have sufficient color contrast',
-        level: 'AA',
-        impact: 'serious',
-        check: () => {
-          // This would require actual color analysis
-          return null; // Placeholder
-        },
-      },
+      this.createHtmlLangRule(),
+      this.createImageAltRule(),
+      this.createColorContrastRule(),
     ];
   }
 }

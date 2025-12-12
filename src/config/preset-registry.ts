@@ -16,6 +16,23 @@ const BASE_TEST_CONFIG = {
 } as const;
 
 /**
+ * Coverage exclude patterns
+ */
+const COVERAGE_EXCLUDE_NODE_MODULES = 'node_modules/';
+const COVERAGE_EXCLUDE_DIST = 'dist/';
+const COVERAGE_EXCLUDE_TEST_TS = '**/*.test.ts';
+const COVERAGE_EXCLUDE_TEST_TSX = '**/*.test.tsx';
+const COVERAGE_EXCLUDE_SPEC_TS = '**/*.spec.ts';
+const COVERAGE_EXCLUDE_SPEC_TSX = '**/*.spec.tsx';
+const COVERAGE_EXCLUDE_CONFIG_TS = '**/*.config.ts';
+const COVERAGE_EXCLUDE_TYPES_TS = '**/types.ts';
+
+/**
+ * Common setup file path
+ */
+const VITEST_SETUP_FILE = './vitest.setup.ts';
+
+/**
  * Preset definitions
  */
 export const PresetConfigs = {
@@ -65,14 +82,14 @@ export const PresetConfigs = {
         provider: 'v8',
         reporter: ['text', 'json', 'html', 'lcov'],
         exclude: [
-          'node_modules/',
-          'dist/',
-          '**/*.test.ts',
-          '**/*.test.tsx',
-          '**/*.spec.ts',
-          '**/*.spec.tsx',
-          '**/*.config.ts',
-          '**/types.ts',
+          COVERAGE_EXCLUDE_NODE_MODULES,
+          COVERAGE_EXCLUDE_DIST,
+          COVERAGE_EXCLUDE_TEST_TS,
+          COVERAGE_EXCLUDE_TEST_TSX,
+          COVERAGE_EXCLUDE_SPEC_TS,
+          COVERAGE_EXCLUDE_SPEC_TSX,
+          COVERAGE_EXCLUDE_CONFIG_TS,
+          COVERAGE_EXCLUDE_TYPES_TS,
         ],
         thresholds: {
           lines: 80,
@@ -99,14 +116,14 @@ export const PresetConfigs = {
         provider: 'v8',
         reporter: ['text', 'lcov'],
         exclude: [
-          'node_modules/',
-          'dist/',
-          '**/*.test.ts',
-          '**/*.test.tsx',
-          '**/*.spec.ts',
-          '**/*.spec.tsx',
-          '**/*.config.ts',
-          '**/types.ts',
+          COVERAGE_EXCLUDE_NODE_MODULES,
+          COVERAGE_EXCLUDE_DIST,
+          COVERAGE_EXCLUDE_TEST_TS,
+          COVERAGE_EXCLUDE_TEST_TSX,
+          COVERAGE_EXCLUDE_SPEC_TS,
+          COVERAGE_EXCLUDE_SPEC_TSX,
+          COVERAGE_EXCLUDE_CONFIG_TS,
+          COVERAGE_EXCLUDE_TYPES_TS,
         ],
         thresholds: {
           lines: 90,
@@ -144,12 +161,18 @@ export const PresetConfigs = {
       ...BASE_TEST_CONFIG,
       name: 'kitium-react',
       environment: 'jsdom',
-      setupFiles: ['./vitest.setup.ts'],
+      setupFiles: [VITEST_SETUP_FILE],
       coverage: {
         enabled: true,
         provider: 'v8',
         reporter: ['text', 'html'],
-        exclude: ['node_modules/', 'dist/', '**/*.test.tsx', '**/*.spec.tsx', '**/*.config.ts'],
+        exclude: [
+          COVERAGE_EXCLUDE_NODE_MODULES,
+          COVERAGE_EXCLUDE_DIST,
+          COVERAGE_EXCLUDE_TEST_TSX,
+          COVERAGE_EXCLUDE_SPEC_TSX,
+          COVERAGE_EXCLUDE_CONFIG_TS,
+        ],
       },
     },
   }) as UserConfig,
@@ -162,7 +185,7 @@ export const PresetConfigs = {
       ...BASE_TEST_CONFIG,
       name: 'kitium-vue',
       environment: 'jsdom',
-      setupFiles: ['./vitest.setup.ts'],
+      setupFiles: [VITEST_SETUP_FILE],
       coverage: {
         enabled: true,
         provider: 'v8',
@@ -179,18 +202,18 @@ export const PresetConfigs = {
       ...BASE_TEST_CONFIG,
       name: 'kitium-angular',
       environment: 'jsdom',
-      setupFiles: ['./vitest.setup.ts'],
+      setupFiles: [VITEST_SETUP_FILE],
       globals: false, // Angular prefers explicit imports
       coverage: {
         enabled: true,
         provider: 'v8',
         reporter: ['text', 'html', 'lcov'],
         exclude: [
-          'node_modules/',
-          'dist/',
-          '**/*.test.ts',
-          '**/*.spec.ts',
-          '**/*.config.ts',
+          COVERAGE_EXCLUDE_NODE_MODULES,
+          COVERAGE_EXCLUDE_DIST,
+          COVERAGE_EXCLUDE_TEST_TS,
+          COVERAGE_EXCLUDE_SPEC_TS,
+          COVERAGE_EXCLUDE_CONFIG_TS,
           '**/polyfills.ts',
           '**/test.ts',
         ],
@@ -206,12 +229,18 @@ export const PresetConfigs = {
       ...BASE_TEST_CONFIG,
       name: 'kitium-svelte',
       environment: 'jsdom',
-      setupFiles: ['./vitest.setup.ts'],
+      setupFiles: [VITEST_SETUP_FILE],
       coverage: {
         enabled: true,
         provider: 'v8',
         reporter: ['text', 'html', 'lcov'],
-        exclude: ['node_modules/', 'dist/', '**/*.test.ts', '**/*.spec.ts', '**/*.config.ts'],
+        exclude: [
+          COVERAGE_EXCLUDE_NODE_MODULES,
+          COVERAGE_EXCLUDE_DIST,
+          COVERAGE_EXCLUDE_TEST_TS,
+          COVERAGE_EXCLUDE_SPEC_TS,
+          COVERAGE_EXCLUDE_CONFIG_TS,
+        ],
       },
     },
   }) as UserConfig,
@@ -224,7 +253,7 @@ export const PresetConfigs = {
       ...BASE_TEST_CONFIG,
       name: 'kitium-solid',
       environment: 'jsdom',
-      setupFiles: ['./vitest.setup.ts'],
+      setupFiles: [VITEST_SETUP_FILE],
       coverage: {
         enabled: true,
         provider: 'v8',
@@ -241,18 +270,18 @@ export const PresetConfigs = {
       ...BASE_TEST_CONFIG,
       name: 'kitium-nextjs',
       environment: 'jsdom',
-      setupFiles: ['./vitest.setup.ts'],
+      setupFiles: [VITEST_SETUP_FILE],
       coverage: {
         enabled: true,
         provider: 'v8',
         reporter: ['text', 'html', 'lcov'],
         exclude: [
-          'node_modules/',
-          'dist/',
+          COVERAGE_EXCLUDE_NODE_MODULES,
+          COVERAGE_EXCLUDE_DIST,
           '.next/',
-          '**/*.test.tsx',
-          '**/*.spec.tsx',
-          '**/*.config.ts',
+          COVERAGE_EXCLUDE_TEST_TSX,
+          COVERAGE_EXCLUDE_SPEC_TSX,
+          COVERAGE_EXCLUDE_CONFIG_TS,
           '**/next.config.js',
           '**/next-env.d.ts',
         ],
@@ -268,18 +297,18 @@ export const PresetConfigs = {
       ...BASE_TEST_CONFIG,
       name: 'kitium-nuxt',
       environment: 'jsdom',
-      setupFiles: ['./vitest.setup.ts'],
+      setupFiles: [VITEST_SETUP_FILE],
       coverage: {
         enabled: true,
         provider: 'v8',
         reporter: ['text', 'html', 'lcov'],
         exclude: [
-          'node_modules/',
-          'dist/',
+          COVERAGE_EXCLUDE_NODE_MODULES,
+          COVERAGE_EXCLUDE_DIST,
           '.nuxt/',
-          '**/*.test.ts',
-          '**/*.spec.ts',
-          '**/*.config.ts',
+          COVERAGE_EXCLUDE_TEST_TS,
+          COVERAGE_EXCLUDE_SPEC_TS,
+          COVERAGE_EXCLUDE_CONFIG_TS,
           '**/nuxt.config.js',
         ],
       },
@@ -294,17 +323,17 @@ export const PresetConfigs = {
       ...BASE_TEST_CONFIG,
       name: 'kitium-astro',
       environment: 'jsdom',
-      setupFiles: ['./vitest.setup.ts'],
+      setupFiles: [VITEST_SETUP_FILE],
       coverage: {
         enabled: true,
         provider: 'v8',
         reporter: ['text', 'html', 'lcov'],
         exclude: [
-          'node_modules/',
-          'dist/',
-          '**/*.test.ts',
-          '**/*.spec.ts',
-          '**/*.config.ts',
+          COVERAGE_EXCLUDE_NODE_MODULES,
+          COVERAGE_EXCLUDE_DIST,
+          COVERAGE_EXCLUDE_TEST_TS,
+          COVERAGE_EXCLUDE_SPEC_TS,
+          COVERAGE_EXCLUDE_CONFIG_TS,
           '**/astro.config.mjs',
         ],
       },

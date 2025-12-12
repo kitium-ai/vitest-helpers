@@ -2,6 +2,10 @@
  * Monitoring utilities for test performance and metrics
  */
 
+import { createLogger } from '@kitiumai/logger';
+
+const logger = createLogger('development', { serviceName: 'monitoring' });
+
 export type MonitoringTestMetrics = {
   suite: string;
   test: string;
@@ -111,19 +115,17 @@ export class TestMonitor {
     }
 
     if (this.config.reportToConsole) {
-      console.log(
-        `[MONITOR] ${metric.suite} > ${metric.test}: ${metric.duration}ms (${metric.status})`
-      );
+      logger.info(`${metric.suite} > ${metric.test}: ${metric.duration}ms (${metric.status})`);
     }
 
     if (this.config.reportToFile) {
       // In a real implementation, this would write to a file
-      console.log(`[MONITOR] Would write to ${this.config.reportToFile}`);
+      logger.debug(`Would write to ${this.config.reportToFile}`);
     }
 
     if (this.config.webhookUrl) {
       // In a real implementation, this would send to webhook
-      console.log(`[MONITOR] Would send to webhook ${this.config.webhookUrl}`);
+      logger.debug(`Would send to webhook ${this.config.webhookUrl}`);
     }
   }
 }

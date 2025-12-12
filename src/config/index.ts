@@ -22,52 +22,52 @@ export type KitiumVitestConfigOptions = {
 };
 
 /**
+ * Build test-specific overrides from options
+ */
+function buildTestOverrides(options: KitiumVitestConfigOptions): Record<string, unknown> {
+  const testOverrides: Record<string, unknown> = {};
+
+  if (options.environment) {
+    testOverrides['environment'] = options.environment;
+  }
+
+  if (options.coverage !== undefined) {
+    if (typeof options.coverage === 'boolean') {
+      testOverrides['coverage'] = options.coverage
+        ? { reporter: ['text', 'html', 'lcov'] }
+        : { enabled: false };
+    } else {
+      testOverrides['coverage'] = options.coverage;
+    }
+  }
+
+  if (options.reporters) {
+    testOverrides['reporters'] = options.reporters;
+  }
+
+  if (options.setupFiles) {
+    testOverrides['setupFiles'] = options.setupFiles;
+  }
+
+  if (options.projectName) {
+    testOverrides['name'] = options.projectName;
+  }
+
+  return testOverrides;
+}
+
+/**
  * Create a Vitest configuration with Kitium presets and customizations
  */
 export function createKitiumVitestConfig(options: KitiumVitestConfigOptions = {}): UserConfig {
-  const {
-    preset = 'local',
-    environment,
-    coverage,
-    reporters,
-    overrides,
-    setupFiles,
-    projectName,
-  } = options;
+  const { preset = 'local', overrides } = options;
 
   // Start with base config and selected preset
   const baseConfig = loadBaseVitestConfig();
   const presetConfig = getPreset(preset);
 
   // Build test-specific overrides
-  const testOverrides: Record<string, unknown> = {};
-
-  if (environment) {
-    testOverrides['environment'] = environment;
-  }
-
-  if (coverage !== undefined) {
-    testOverrides['coverage'] =
-      typeof coverage === 'boolean'
-        ? coverage
-          ? { reporter: ['text', 'html', 'lcov'] }
-          : { enabled: false }
-        : coverage;
-  }
-
-  if (reporters) {
-    testOverrides['reporters'] = reporters;
-  }
-
-  if (setupFiles) {
-    testOverrides['setupFiles'] = setupFiles;
-  }
-
-  if (projectName) {
-    testOverrides['name'] = projectName;
-  }
-
-  // Build the test overrides config
+  const testOverrides = buildTestOverrides(options);
   const testConfig: UserConfig =
     Object.keys(testOverrides).length > 0 ? { test: testOverrides } : {};
 

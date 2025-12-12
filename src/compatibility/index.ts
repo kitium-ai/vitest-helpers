@@ -1,3 +1,4 @@
+import { createMockFunction as _createMockFunction, sleep as _sleep } from '@kitiumai/test-core';
 import { vi } from 'vitest';
 
 /**
@@ -12,9 +13,6 @@ export {
   restoreSpy,
   spyOn,
 } from '@kitiumai/test-core';
-
-// Backward-compatible / documented aliases
-import { createMockFunction as _createMockFunction, sleep as _sleep } from '@kitiumai/test-core';
 
 /**
  * Alias for `createMockFunction` (older vitest-helpers exports).

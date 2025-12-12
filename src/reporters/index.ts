@@ -2,7 +2,10 @@
  * Custom Vitest reporters
  */
 
+import { createLogger } from '@kitiumai/logger';
 import type { Reporter } from 'vitest';
+
+const logger = createLogger('development', { serviceName: 'reporters' });
 
 /**
  * Detailed test reporter
@@ -10,11 +13,11 @@ import type { Reporter } from 'vitest';
  */
 export class DetailedReporter implements Reporter {
   onInit(): void {
-    console.log('🚀 Starting Vitest tests...\n');
+    logger.info('🚀 Starting Vitest tests...\n');
   }
 
   onFinished(): void {
-    console.log('\n✅ All tests completed');
+    logger.info('\n✅ All tests completed');
   }
 
   // Implement other Reporter methods as needed

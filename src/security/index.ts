@@ -6,6 +6,10 @@ import * as crypto from 'node:crypto';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 
+import { createLogger } from '@kitiumai/logger';
+
+const logger = createLogger('development', { serviceName: 'security' });
+
 export type AuditLogEntry = {
   id: string;
   timestamp: Date;
@@ -65,7 +69,7 @@ export class AuditLogger {
     }
 
     // Console logging for development
-    console.log(`[AUDIT] ${entry.action} by ${entry.user} on ${entry.resource}`);
+    logger.info(`${entry.action} by ${entry.user} on ${entry.resource}`);
   }
 
   getLogs(filter?: {
@@ -207,56 +211,45 @@ export class ComplianceReporter {
     this.secretDetector = secretDetector;
   }
 
-  async generateReport(
-    testResults: Array<{ name?: string }>,
-    scanPaths: string[] = ['.'],
-    period?: { start: Date; end: Date }
-  ): Promise<ComplianceReport> {
-    const now = new Date();
-    const defaultPeriod = {
-      start: new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000), // 30 days ago
-      end: now,
-    };
-
-    const reportPeriod = period || defaultPeriod;
-
-    // Scan for secrets
+  private async scanForSecrets(scanPaths: string[]): Promise<SecretDetectionResult[]> {
     const findings: SecretDetectionResult[] = [];
+    const excludeDirs = ['node_modules', '.git', 'dist', 'build'];
+
     for (const scanPath of scanPaths) {
-      const results = await this.secretDetector.scanDirectory(scanPath, [
-        'node_modules',
-        '.git',
-        'dist',
-        'build',
-      ]);
+      const results = await this.secretDetector.scanDirectory(scanPath, excludeDirs);
       findings.push(...results);
     }
 
-    // Get audit logs
-    const auditLogs = this.auditLogger.getLogs({
-      since: reportPeriod.start,
-    });
+    return findings;
+  }
 
-    // Calculate metrics
-    const securityTests = testResults.filter((test) => {
+  private countSecurityTests(testResults: Array<{ name?: string }>): number {
+    return testResults.filter((test) => {
       const testName = typeof test.name === 'string' ? test.name.toLowerCase() : '';
       return (
         testName.includes('security') || testName.includes('auth') || testName.includes('secret')
       );
     }).length;
+  }
 
-    const vulnerabilitiesFound = findings.filter(
-      (f) => f.severity === 'high' || f.severity === 'critical'
-    ).length;
+  private calculateComplianceScore(
+    findings: SecretDetectionResult[],
+    totalTests: number,
+    securityTests: number
+  ): number {
+    let score = 100;
+    score -= findings.length * 5;
+    score -= (totalTests - securityTests) * 2;
+    return Math.max(0, score);
+  }
 
-    // Simple compliance score calculation
-    let complianceScore = 100;
-    complianceScore -= findings.length * 5; // -5 points per finding
-    complianceScore -= (testResults.length - securityTests) * 2; // -2 points for lack of security tests
-    complianceScore = Math.max(0, complianceScore);
-
-    // Generate recommendations
+  private generateRecommendations(
+    findings: SecretDetectionResult[],
+    securityTests: number,
+    auditLogs: AuditLogEntry[]
+  ): string[] {
     const recommendations: string[] = [];
+
     if (findings.length > 0) {
       recommendations.push('Address all detected secrets and rotate compromised credentials');
     }
@@ -266,6 +259,34 @@ export class ComplianceReporter {
     if (auditLogs.length === 0) {
       recommendations.push('Enable audit logging for better compliance tracking');
     }
+
+    return recommendations;
+  }
+
+  async generateReport(
+    testResults: Array<{ name?: string }>,
+    scanPaths: string[] = ['.'],
+    period?: { start: Date; end: Date }
+  ): Promise<ComplianceReport> {
+    const now = new Date();
+    const defaultPeriod = {
+      start: new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000),
+      end: now,
+    };
+
+    const reportPeriod = period || defaultPeriod;
+    const findings = await this.scanForSecrets(scanPaths);
+    const auditLogs = this.auditLogger.getLogs({ since: reportPeriod.start });
+    const securityTests = this.countSecurityTests(testResults);
+    const vulnerabilitiesFound = findings.filter(
+      (f) => f.severity === 'high' || f.severity === 'critical'
+    ).length;
+    const complianceScore = this.calculateComplianceScore(
+      findings,
+      testResults.length,
+      securityTests
+    );
+    const recommendations = this.generateRecommendations(findings, securityTests, auditLogs);
 
     return {
       timestamp: now,
@@ -282,51 +303,76 @@ export class ComplianceReporter {
     };
   }
 
-  generateReportMarkdown(report: ComplianceReport): string {
+  private formatReportHeader(report: ComplianceReport): string {
     let markdown = '# Security Compliance Report\n\n';
-
     markdown += `## Report Period\n`;
     markdown += `- From: ${report.period.start.toISOString()}\n`;
     markdown += `- To: ${report.period.end.toISOString()}\n`;
     markdown += `- Generated: ${report.timestamp.toISOString()}\n\n`;
-
     markdown += `## Compliance Score: ${report.metrics.complianceScore}/100\n\n`;
+    return markdown;
+  }
 
-    markdown += `## Metrics\n\n`;
+  private formatMetricsSection(report: ComplianceReport): string {
+    let markdown = `## Metrics\n\n`;
     markdown += `- Total Tests: ${report.metrics.totalTests}\n`;
     markdown += `- Security Tests: ${report.metrics.securityTests}\n`;
     markdown += `- Vulnerabilities Found: ${report.metrics.vulnerabilitiesFound}\n\n`;
-
-    if (report.findings.length > 0) {
-      markdown += `## Security Findings\n\n`;
-      report.findings.forEach((finding, index) => {
-        markdown += `### ${index + 1}. ${finding.type} (${finding.severity})\n`;
-        markdown += `- File: ${finding.file}:${finding.line}\n`;
-        markdown += `- Value: \`${finding.value}\`\n`;
-        markdown += `- Recommendation: ${finding.recommendation}\n\n`;
-      });
-    }
-
-    if (report.auditLogs.length > 0) {
-      markdown += `## Audit Logs\n\n`;
-      report.auditLogs.slice(0, 10).forEach((log) => {
-        markdown += `- ${log.timestamp.toISOString()}: ${log.action} by ${log.user} on ${log.resource}\n`;
-      });
-      if (report.auditLogs.length > 10) {
-        markdown += `- ... and ${report.auditLogs.length - 10} more entries\n`;
-      }
-      markdown += '\n';
-    }
-
-    if (report.recommendations.length > 0) {
-      markdown += `## Recommendations\n\n`;
-      report.recommendations.forEach((rec) => {
-        markdown += `- ${rec}\n`;
-      });
-      markdown += '\n';
-    }
-
     return markdown;
+  }
+
+  private formatFindingsSection(findings: SecretDetectionResult[]): string {
+    if (findings.length === 0) {
+      return '';
+    }
+
+    let markdown = `## Security Findings\n\n`;
+    findings.forEach((finding, index) => {
+      markdown += `### ${index + 1}. ${finding.type} (${finding.severity})\n`;
+      markdown += `- File: ${finding.file}:${finding.line}\n`;
+      markdown += `- Value: \`${finding.value}\`\n`;
+      markdown += `- Recommendation: ${finding.recommendation}\n\n`;
+    });
+    return markdown;
+  }
+
+  private formatAuditLogsSection(auditLogs: AuditLogEntry[]): string {
+    if (auditLogs.length === 0) {
+      return '';
+    }
+
+    let markdown = `## Audit Logs\n\n`;
+    auditLogs.slice(0, 10).forEach((log) => {
+      markdown += `- ${log.timestamp.toISOString()}: ${log.action} by ${log.user} on ${log.resource}\n`;
+    });
+    if (auditLogs.length > 10) {
+      markdown += `- ... and ${auditLogs.length - 10} more entries\n`;
+    }
+    markdown += '\n';
+    return markdown;
+  }
+
+  private formatRecommendationsSection(recommendations: string[]): string {
+    if (recommendations.length === 0) {
+      return '';
+    }
+
+    let markdown = `## Recommendations\n\n`;
+    recommendations.forEach((rec) => {
+      markdown += `- ${rec}\n`;
+    });
+    markdown += '\n';
+    return markdown;
+  }
+
+  generateReportMarkdown(report: ComplianceReport): string {
+    return (
+      this.formatReportHeader(report) +
+      this.formatMetricsSection(report) +
+      this.formatFindingsSection(report.findings) +
+      this.formatAuditLogsSection(report.auditLogs) +
+      this.formatRecommendationsSection(report.recommendations)
+    );
   }
 }
 

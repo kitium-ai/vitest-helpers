@@ -15,7 +15,7 @@ let PNG: PngConstructor | null = null;
 
 try {
   pixelmatch = require('pixelmatch') as PixelmatchFunction;
-  PNG = (require('pngjs') as typeof import('pngjs')).PNG;
+  PNG = (require('pngjs') as any).PNG;
 } catch (_error) {
   // Dependencies not available, visual testing will be limited
 }
@@ -53,6 +53,88 @@ export class VisualTester {
     };
   }
 
+  private async performImageComparison(
+    baselineBuffer: Buffer,
+    actualBuffer: Buffer,
+    testName: string,
+    baselinePath: string,
+    actualPath: string,
+    diffPath: string
+  ): Promise<VisualTestResult> {
+    if (!PNG || !pixelmatch) {
+      throw new Error(
+        'pngjs and pixelmatch dependencies required. Install them to use visual testing.'
+      );
+    }
+
+    const baselinePng = PNG.sync.read(baselineBuffer);
+    const actualPng = PNG.sync.read(actualBuffer);
+    const { width, height } = baselinePng;
+    const diffPng = new PNG({ width, height });
+
+    const diffPixels = pixelmatch(baselinePng.data, actualPng.data, diffPng.data, width, height, {
+      threshold: 0.1,
+      diffColor: this.config.diffColor,
+    });
+
+    const totalPixels = width * height;
+    const similarity = 1 - diffPixels / totalPixels;
+    const passed = similarity >= 1 - this.config.threshold;
+
+    if (!passed || this.config.updateBaselines) {
+      const diffBuffer = PNG.sync.write(diffPng);
+      await fs.promises.writeFile(diffPath, diffBuffer);
+    }
+
+    if (this.config.updateBaselines && !passed) {
+      await fs.promises.writeFile(baselinePath, actualBuffer);
+    }
+
+    const result: VisualTestResult = {
+      testName,
+      passed,
+      similarity,
+      diffPixels,
+      baselinePath,
+      actualPath,
+    };
+
+    if (!passed) {
+      result.diffPath = diffPath;
+    }
+
+    return result;
+  }
+
+  private async handleMissingBaseline(
+    testName: string,
+    actualBuffer: Buffer,
+    baselinePath: string,
+    actualPath: string
+  ): Promise<VisualTestResult> {
+    if (this.config.updateBaselines) {
+      await fs.promises.mkdir(path.dirname(baselinePath), { recursive: true });
+      await fs.promises.writeFile(baselinePath, actualBuffer);
+      return {
+        testName,
+        passed: true,
+        similarity: 1,
+        diffPixels: 0,
+        baselinePath,
+        actualPath,
+      };
+    }
+
+    return {
+      testName,
+      passed: false,
+      similarity: 0,
+      diffPixels: 0,
+      actualPath,
+      error: 'Baseline image not found. Run with updateBaselines: true to create it.',
+    };
+  }
+
   async compareScreenshots(
     testName: string,
     actualBuffer: Buffer,
@@ -62,93 +144,23 @@ export class VisualTester {
     const actualPath = path.join(this.config.diffDir, `${testName}-actual.png`);
     const diffPath = path.join(this.config.diffDir, `${testName}-diff.png`);
 
-    // Ensure directories exist
+    // Ensure directories exist and save actual screenshot
     await fs.promises.mkdir(path.dirname(actualPath), { recursive: true });
     await fs.promises.mkdir(path.dirname(diffPath), { recursive: true });
-
-    // Save actual screenshot
     await fs.promises.writeFile(actualPath, actualBuffer);
 
     try {
-      // Load baseline if it exists
       const baselineBuffer = await fs.promises.readFile(baselinePath);
-      if (!PNG) {
-        throw new Error('pngjs dependency not available. Install pngjs to use visual testing.');
-      }
-      const baselinePng = PNG.sync.read(baselineBuffer);
-      const actualPng = PNG.sync.read(actualBuffer);
-
-      // Create diff image
-      const { width, height } = baselinePng;
-      if (!PNG) {
-        throw new Error('pngjs dependency not available. Install pngjs to use visual testing.');
-      }
-      const diffPng = new PNG({ width, height });
-
-      if (!pixelmatch) {
-        throw new Error(
-          'pixelmatch dependency not available. Install pixelmatch to use visual testing.'
-        );
-      }
-
-      const diffPixels = pixelmatch(baselinePng.data, actualPng.data, diffPng.data, width, height, {
-        threshold: 0.1,
-        diffColor: this.config.diffColor,
-      });
-
-      const totalPixels = width * height;
-      const similarity = 1 - diffPixels / totalPixels;
-
-      const passed = similarity >= 1 - this.config.threshold;
-
-      if (!passed || this.config.updateBaselines) {
-        // Save diff image
-        const diffBuffer = PNG.sync.write(diffPng);
-        await fs.promises.writeFile(diffPath, diffBuffer);
-      }
-
-      if (this.config.updateBaselines && !passed) {
-        // Update baseline
-        await fs.promises.writeFile(baselinePath, actualBuffer);
-      }
-
-      const result: VisualTestResult = {
+      return await this.performImageComparison(
+        baselineBuffer,
+        actualBuffer,
         testName,
-        passed,
-        similarity,
-        diffPixels,
         baselinePath,
         actualPath,
-      };
-
-      if (!passed) {
-        result.diffPath = diffPath;
-      }
-
-      return result;
+        diffPath
+      );
     } catch (_error) {
-      // Baseline doesn't exist
-      if (this.config.updateBaselines) {
-        await fs.promises.mkdir(path.dirname(baselinePath), { recursive: true });
-        await fs.promises.writeFile(baselinePath, actualBuffer);
-        return {
-          testName,
-          passed: true,
-          similarity: 1,
-          diffPixels: 0,
-          baselinePath,
-          actualPath,
-        };
-      } else {
-        return {
-          testName,
-          passed: false,
-          similarity: 0,
-          diffPixels: 0,
-          actualPath,
-          error: 'Baseline image not found. Run with updateBaselines: true to create it.',
-        };
-      }
+      return await this.handleMissingBaseline(testName, actualBuffer, baselinePath, actualPath);
     }
   }
 
