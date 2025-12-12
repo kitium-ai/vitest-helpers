@@ -1,6 +1,6 @@
 {
   "name": "@kitiumai/vitest-helpers",
-  "version": "2.0.1",
+  "version": "3.0.0",
   "description": "Vitest test helpers with framework-specific utilities - setup, browser testing, benchmarks, and migration tools",
   "type": "module",
   "sideEffects": false,
