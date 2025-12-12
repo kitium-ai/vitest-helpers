@@ -188,8 +188,8 @@
     "test:watch": "vitest",
     "test:ui": "vit est --ui",
     "test:coverage": "vitest run --coverage",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
+    "lint": "eslint src",
+    "lint:fix": "eslint src --fix",
     "format": "prettier --check .",
     "format:fix": "prettier --write .",
     "format:check": "prettier --check .",
@@ -215,8 +215,8 @@
     "pngjs": "^7.0.0"
   },
   "peerDependencies": {
-    "vitest": "^2.0.0",
-    "typescript": "^5.6.0"
+    "typescript": "^5.6.0",
+    "vitest": "^2.0.0"
   },
   "peerDependenciesMeta": {
     "@vitest/ui": {
@@ -227,10 +227,10 @@
     }
   },
   "devDependencies": {
+    "@changesets/cli": "^2.27.1",
     "@kitiumai/config": "^3.1.4",
     "@kitiumai/lint": "^3.0.0",
     "@kitiumai/scripts": "^2.0.0",
-    "@changesets/cli": "^2.27.1",
     "@types/node": "^24.10.1",
     "@types/pixelmatch": "^5.2.4",
     "@typescript-eslint/eslint-plugin": "^8.16.0",
@@ -238,6 +238,7 @@
     "eslint": "^9.15.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",
+    "husky": "^9.1.7",
     "prettier": "^3.6.2",
     "rimraf": "^5.0.5",
     "typescript": "^5.6.0",

@@ -122,14 +122,20 @@ export default createKitiumVitestConfig({
 Extend Vitest with custom plugins for specialized testing needs:
 
 ```typescript
-import { pluginManager, monitoringPlugin, performancePlugin } from '@kitiumai/vitest-helpers/plugins';
+import {
+  pluginManager,
+  monitoringPlugin,
+  performancePlugin,
+} from '@kitiumai/vitest-helpers/plugins';
 
 // Register built-in plugins
 pluginManager.register(monitoringPlugin);
 pluginManager.register(performancePlugin);
 
 // Load all plugins
-await pluginManager.load({ /* config */ });
+await pluginManager.load({
+  /* config */
+});
 
 // Use plugin utilities
 const metrics = monitoringPlugin.utilities.getMetrics();
@@ -159,7 +165,11 @@ console.log(githubConfig);
 Parallel test execution and caching:
 
 ```typescript
-import { parallelExecutor, cacheManager, memoryOptimizer } from '@kitiumai/vitest-helpers/performance';
+import {
+  parallelExecutor,
+  cacheManager,
+  memoryOptimizer,
+} from '@kitiumai/vitest-helpers/performance';
 
 // Run tests in parallel
 const results = await parallelExecutor.executeParallel([
@@ -242,6 +252,7 @@ npx @kitiumai/vitest-helpers/cli
 ```
 
 Available commands:
+
 - `setup-ci` - Generate CI/CD configuration
 - `monitor` - Start test monitoring
 - `collaborate` - Team collaboration tools

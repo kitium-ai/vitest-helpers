@@ -1,13 +1,8 @@
 {
   "extends": "@kitiumai/config/tsconfig.base.json",
   "compilerOptions": {
-    "outDir": "./dist",
-    "rootDir": "./src",
-    "declaration": true,
-    "declarationMap": true,
-    "module": "ESNext",
-    "moduleResolution": "bundler"
+    "baseUrl": ".",
+    "outDir": "./dist"
   },
-  "include": ["src/**/*", "types.d.ts"],
-  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts"]
+  "include": ["src"]
 }
