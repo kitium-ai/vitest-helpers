@@ -7,7 +7,8 @@
  */
 
 import type { UserConfig } from 'vitest/config';
-import { PresetConfigs, createCustomPreset as createPreset } from '../config/preset-registry.js';
+
+import { createCustomPreset as createPreset, PresetConfigs } from '../config/preset-registry.js';
 
 /**
  * Development preset - fast feedback

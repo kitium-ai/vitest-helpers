@@ -2,27 +2,27 @@
  * Monitoring utilities for test performance and metrics
  */
 
-export interface MonitoringTestMetrics {
+export type MonitoringTestMetrics = {
   suite: string;
   test: string;
   duration: number;
   status: 'passed' | 'failed' | 'skipped';
   memoryUsage: NodeJS.MemoryUsage;
   timestamp: number;
-}
+};
 
-export interface MonitoringConfig {
+export type MonitoringConfig = {
   enabled: boolean;
   collectMetrics: boolean;
   reportToConsole: boolean;
   reportToFile?: string;
   webhookUrl?: string;
   retentionPeriod: number; // in milliseconds
-}
+};
 
 export class TestMonitor {
   private metrics: MonitoringTestMetrics[] = [];
-  private config: MonitoringConfig;
+  private readonly config: MonitoringConfig;
 
   constructor(config: Partial<MonitoringConfig> = {}) {
     this.config = {
@@ -57,14 +57,14 @@ export class TestMonitor {
   }
 
   recordTestFailure(suite: string, test: string): void {
-    const metric = this.metrics.find(m => m.suite === suite && m.test === test);
+    const metric = this.metrics.find((m) => m.suite === suite && m.test === test);
     if (metric) {
       metric.status = 'failed';
     }
   }
 
   recordTestSkip(suite: string, test: string): void {
-    const metric = this.metrics.find(m => m.suite === suite && m.test === test);
+    const metric = this.metrics.find((m) => m.suite === suite && m.test === test);
     if (metric) {
       metric.status = 'skipped';
     }
@@ -76,13 +76,13 @@ export class TestMonitor {
 
   getAggregatedMetrics() {
     const totalTests = this.metrics.length;
-    const passedTests = this.metrics.filter(m => m.status === 'passed').length;
-    const failedTests = this.metrics.filter(m => m.status === 'failed').length;
-    const skippedTests = this.metrics.filter(m => m.status === 'skipped').length;
+    const passedTests = this.metrics.filter((m) => m.status === 'passed').length;
+    const failedTests = this.metrics.filter((m) => m.status === 'failed').length;
+    const skippedTests = this.metrics.filter((m) => m.status === 'skipped').length;
 
     const avgDuration = this.metrics.reduce((sum, m) => sum + m.duration, 0) / totalTests;
-    const maxDuration = Math.max(...this.metrics.map(m => m.duration));
-    const minDuration = Math.min(...this.metrics.map(m => m.duration));
+    const maxDuration = Math.max(...this.metrics.map((m) => m.duration));
+    const minDuration = Math.min(...this.metrics.map((m) => m.duration));
 
     return {
       summary: {
@@ -102,14 +102,18 @@ export class TestMonitor {
 
   clearOldMetrics(): void {
     const cutoff = Date.now() - this.config.retentionPeriod;
-    this.metrics = this.metrics.filter(m => m.timestamp > cutoff);
+    this.metrics = this.metrics.filter((m) => m.timestamp > cutoff);
   }
 
   private reportMetric(metric: MonitoringTestMetrics): void {
-    if (!this.config.enabled) return;
+    if (!this.config.enabled) {
+      return;
+    }
 
     if (this.config.reportToConsole) {
-      console.log(`[MONITOR] ${metric.suite} > ${metric.test}: ${metric.duration}ms (${metric.status})`);
+      console.log(
+        `[MONITOR] ${metric.suite} > ${metric.test}: ${metric.duration}ms (${metric.status})`
+      );
     }
 
     if (this.config.reportToFile) {

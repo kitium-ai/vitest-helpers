@@ -1,5 +1,6 @@
 import baseVitestConfig from '@kitiumai/config/vitest.config.base.js';
 import { mergeConfig, type UserConfig } from 'vitest/config';
+
 import { getPreset, type PresetName } from './preset-registry.js';
 
 /**
@@ -10,7 +11,7 @@ export type KitiumVitestPresetName = 'local' | 'ci' | 'library' | 'browser';
 /**
  * Configuration options for creating a Kitium Vitest config
  */
-export interface KitiumVitestConfigOptions {
+export type KitiumVitestConfigOptions = {
   preset?: PresetName;
   environment?: string;
   coverage?: boolean | Record<string, unknown>;
@@ -18,7 +19,7 @@ export interface KitiumVitestConfigOptions {
   overrides?: UserConfig;
   setupFiles?: string[];
   projectName?: string;
-}
+};
 
 /**
  * Create a Vitest configuration with Kitium presets and customizations
@@ -67,9 +68,8 @@ export function createKitiumVitestConfig(options: KitiumVitestConfigOptions = {}
   }
 
   // Build the test overrides config
-  const testConfig: UserConfig = Object.keys(testOverrides).length > 0
-    ? { test: testOverrides }
-    : {};
+  const testConfig: UserConfig =
+    Object.keys(testOverrides).length > 0 ? { test: testOverrides } : {};
 
   // Merge all configs in order: base -> preset -> test overrides -> user overrides
   let result = mergeConfig(baseConfig, presetConfig);
@@ -113,5 +113,5 @@ function loadBaseVitestConfig(): UserConfig {
 }
 
 // Re-export preset registry for advanced usage
+export { CoveragePresets, createCoverageConfig, getCoverageConfig } from './coverage-config.js';
 export { getPreset, type PresetName } from './preset-registry.js';
-export { CoveragePresets, getCoverageConfig, createCoverageConfig } from './coverage-config.js';

@@ -58,9 +58,7 @@ export const migrationSteps = [
 export function convertJestConfigToVitest(
   jestConfig: Record<string, unknown>
 ): Record<string, unknown> {
-  const vitestConfig: Record<string, unknown> = {
-    test: {},
-  };
+  const vitestConfig: Record<string, unknown> = { test: {} };
 
   const configMap: Record<string, string> = {
     testMatch: 'include',
@@ -75,34 +73,41 @@ export function convertJestConfigToVitest(
     transform: '(use Vite plugins instead)',
   };
 
-  for (const [jestKey, vitestPath] of Object.entries(configMap)) {
-    if (jestConfig[jestKey] !== undefined) {
-      const keys = vitestPath.split('.');
-      const existingTestConfig = (vitestConfig['test'] as Record<string, any>) ?? {};
-      vitestConfig['test'] = existingTestConfig;
-      let current: Record<string, any> = existingTestConfig;
-
-      for (let i = 0; i < keys.length - 1; i++) {
-        const key = keys[i];
-        if (!key) {
-          continue;
-        }
-        if (!current[key]) {
-          current[key] = {};
-        }
-        current = current[key];
-      }
-
-      if (!vitestPath.includes('use Vite')) {
-        const targetKey = keys[keys.length - 1];
-        if (targetKey) {
-          current[targetKey] = jestConfig[jestKey];
-        }
-      }
-    }
-  }
+  Object.entries(configMap)
+    .filter(([jestKey]) => jestConfig[jestKey] !== undefined)
+    .forEach(([jestKey, vitestPath]) => {
+      applyConfigMapping(vitestConfig, vitestPath, jestConfig[jestKey]);
+    });
 
   return vitestConfig;
+}
+
+function applyConfigMapping(
+  vitestConfig: Record<string, unknown>,
+  vitestPath: string,
+  value: unknown
+): void {
+  if (vitestPath.includes('use Vite')) {
+    return;
+  }
+
+  const keys = vitestPath.split('.').filter(Boolean);
+  let current = (vitestConfig['test'] as Record<string, any>) ?? {};
+  vitestConfig['test'] = current;
+
+  for (let index = 0; index < keys.length - 1; index++) {
+    const key = keys[index];
+    if (!key) {
+      continue;
+    }
+    current[key] = current[key] ?? {};
+    current = current[key];
+  }
+
+  const targetKey = keys[keys.length - 1];
+  if (targetKey) {
+    current[targetKey] = value;
+  }
 }
 
 /**

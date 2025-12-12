@@ -2,29 +2,33 @@
  * Visual testing utilities for screenshot comparison and UI testing
  */
 
-import * as fs from 'fs';
-import * as path from 'path';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
+
+type PixelmatchFunction = typeof import('pixelmatch');
+// pngjs types are optional; use a loose type to avoid requiring type declarations
+type PngConstructor = any;
 
 // Dynamic imports for optional dependencies
-let pixelmatch: any = null;
-let PNG: any = null;
+let pixelmatch: PixelmatchFunction | null = null;
+let PNG: PngConstructor | null = null;
 
 try {
-  pixelmatch = require('pixelmatch');
-  PNG = require('pngjs').PNG;
-} catch (error) {
+  pixelmatch = require('pixelmatch') as PixelmatchFunction;
+  PNG = (require('pngjs') as typeof import('pngjs')).PNG;
+} catch (_error) {
   // Dependencies not available, visual testing will be limited
 }
 
-export interface VisualTestConfig {
+export type VisualTestConfig = {
   threshold: number; // 0-1, similarity threshold
   diffColor: [number, number, number]; // RGB color for diff pixels
   baselineDir: string;
   diffDir: string;
   updateBaselines: boolean;
-}
+};
 
-export interface VisualTestResult {
+export type VisualTestResult = {
   testName: string;
   passed: boolean;
   similarity: number;
@@ -33,10 +37,10 @@ export interface VisualTestResult {
   actualPath: string;
   diffPath?: string;
   error?: string;
-}
+};
 
 export class VisualTester {
-  private config: VisualTestConfig;
+  private readonly config: VisualTestConfig;
 
   constructor(config: Partial<VisualTestConfig> = {}) {
     this.config = {
@@ -54,10 +58,7 @@ export class VisualTester {
     actualBuffer: Buffer,
     baselineName?: string
   ): Promise<VisualTestResult> {
-    const baselinePath = path.join(
-      this.config.baselineDir,
-      baselineName || `${testName}.png`
-    );
+    const baselinePath = path.join(this.config.baselineDir, baselineName || `${testName}.png`);
     const actualPath = path.join(this.config.diffDir, `${testName}-actual.png`);
     const diffPath = path.join(this.config.diffDir, `${testName}-diff.png`);
 
@@ -85,22 +86,20 @@ export class VisualTester {
       const diffPng = new PNG({ width, height });
 
       if (!pixelmatch) {
-        throw new Error('pixelmatch dependency not available. Install pixelmatch to use visual testing.');
+        throw new Error(
+          'pixelmatch dependency not available. Install pixelmatch to use visual testing.'
+        );
       }
 
-      const diffPixels = pixelmatch(
-        baselinePng.data,
-        actualPng.data,
-        diffPng.data,
-        width,
-        height,
-        { threshold: 0.1, diffColor: this.config.diffColor }
-      );
+      const diffPixels = pixelmatch(baselinePng.data, actualPng.data, diffPng.data, width, height, {
+        threshold: 0.1,
+        diffColor: this.config.diffColor,
+      });
 
       const totalPixels = width * height;
-      const similarity = 1 - (diffPixels / totalPixels);
+      const similarity = 1 - diffPixels / totalPixels;
 
-      const passed = similarity >= (1 - this.config.threshold);
+      const passed = similarity >= 1 - this.config.threshold;
 
       if (!passed || this.config.updateBaselines) {
         // Save diff image
@@ -127,7 +126,7 @@ export class VisualTester {
       }
 
       return result;
-    } catch (error) {
+    } catch (_error) {
       // Baseline doesn't exist
       if (this.config.updateBaselines) {
         await fs.promises.mkdir(path.dirname(baselinePath), { recursive: true });
@@ -160,16 +159,13 @@ export class VisualTester {
   ): Promise<VisualTestResult> {
     // Simple HTML comparison - in a real implementation, this would use
     // a headless browser to render and screenshot the HTML
-    const baselinePath = path.join(
-      this.config.baselineDir,
-      baselineName || `${testName}.html`
-    );
+    const baselinePath = path.join(this.config.baselineDir, baselineName || `${testName}.html`);
 
     try {
       const baselineHTML = await fs.promises.readFile(baselinePath, 'utf8');
       const similarity = this.calculateTextSimilarity(baselineHTML, actualHTML);
 
-      const passed = similarity >= (1 - this.config.threshold);
+      const passed = similarity >= 1 - this.config.threshold;
 
       return {
         testName,
@@ -179,7 +175,7 @@ export class VisualTester {
         baselinePath,
         actualPath: '', // Not applicable
       };
-    } catch (error) {
+    } catch (_error) {
       if (this.config.updateBaselines) {
         await fs.promises.mkdir(path.dirname(baselinePath), { recursive: true });
         await fs.promises.writeFile(baselinePath, actualHTML);
@@ -209,43 +205,45 @@ export class VisualTester {
     const longer = text1.length > text2.length ? text1 : text2;
     const shorter = text1.length > text2.length ? text2 : text1;
 
-    if (longer.length === 0) return 1;
+    if (longer.length === 0) {
+      return 1;
+    }
 
     const distance = this.levenshteinDistance(longer, shorter);
     return (longer.length - distance) / longer.length;
   }
 
-  private levenshteinDistance(str1: string, str2: string): number {
+  private levenshteinDistance(string1: string, string2: string): number {
     const matrix: number[][] = [];
 
-    for (let i = 0; i <= str2.length; i++) {
-      matrix[i] = [i];
+    for (let index = 0; index <= string2.length; index++) {
+      matrix[index] = [index];
     }
 
-    for (let j = 0; j <= str1.length; j++) {
-      matrix[0]![j] = j;
+    for (let index = 0; index <= string1.length; index++) {
+      matrix[0]![index] = index;
     }
 
-    for (let i = 1; i <= str2.length; i++) {
-      for (let j = 1; j <= str1.length; j++) {
-        if (str2.charAt(i - 1) === str1.charAt(j - 1)) {
-          matrix[i]![j] = matrix[i - 1]![j - 1]!;
+    for (let index = 1; index <= string2.length; index++) {
+      for (let index_ = 1; index_ <= string1.length; index_++) {
+        if (string2.charAt(index - 1) === string1.charAt(index_ - 1)) {
+          matrix[index]![index_] = matrix[index - 1]![index_ - 1]!;
         } else {
-          matrix[i]![j] = Math.min(
-            matrix[i - 1]![j - 1]! + 1,
-            matrix[i]![j - 1]! + 1,
-            matrix[i - 1]![j]! + 1
+          matrix[index]![index_] = Math.min(
+            matrix[index - 1]![index_ - 1]! + 1,
+            matrix[index]![index_ - 1]! + 1,
+            matrix[index - 1]![index_]! + 1
           );
         }
       }
     }
 
-    return matrix[str2.length]![str1.length]!;
+    return matrix[string2.length]![string1.length]!;
   }
 }
 
 export class VisualTestReporter {
-  private results: VisualTestResult[] = [];
+  private readonly results: VisualTestResult[] = [];
 
   addResult(result: VisualTestResult): void {
     this.results.push(result);
@@ -253,7 +251,7 @@ export class VisualTestReporter {
 
   getSummary() {
     const total = this.results.length;
-    const passed = this.results.filter(r => r.passed).length;
+    const passed = this.results.filter((r) => r.passed).length;
     const failed = total - passed;
 
     return {
@@ -278,8 +276,8 @@ export class VisualTestReporter {
     if (summary.failed > 0) {
       report += `## Failed Tests\n\n`;
       summary.results
-        .filter(r => !r.passed)
-        .forEach(result => {
+        .filter((r) => !r.passed)
+        .forEach((result) => {
           report += `### ${result.testName}\n`;
           report += `- Similarity: ${(result.similarity * 100).toFixed(2)}%\n`;
           if (result.error) {

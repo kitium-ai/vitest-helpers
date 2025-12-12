@@ -3,7 +3,7 @@
  * Single source of truth for coverage settings
  */
 
-export interface CoverageConfig {
+export type CoverageConfig = {
   enabled?: boolean;
   provider?: 'v8' | 'istanbul' | 'c8';
   reporter?: string[];
@@ -14,7 +14,7 @@ export interface CoverageConfig {
     branches?: number;
     statements?: number;
   };
-}
+};
 
 /**
  * Common coverage exclude patterns

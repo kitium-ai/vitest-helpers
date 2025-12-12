@@ -2,31 +2,31 @@
  * Security utilities for audit logging, secret detection, and compliance reporting
  */
 
-import * as crypto from 'crypto';
-import * as fs from 'fs';
-import * as path from 'path';
+import * as crypto from 'node:crypto';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 
-export interface AuditLogEntry {
+export type AuditLogEntry = {
   id: string;
   timestamp: Date;
   action: string;
   user: string;
   resource: string;
-  details: Record<string, any>;
+  details: Record<string, unknown>;
   ip?: string;
   userAgent?: string;
-}
+};
 
-export interface SecretDetectionResult {
+export type SecretDetectionResult = {
   file: string;
   line: number;
   type: string;
   value: string;
   severity: 'low' | 'medium' | 'high' | 'critical';
   recommendation: string;
-}
+};
 
-export interface ComplianceReport {
+export type ComplianceReport = {
   timestamp: Date;
   period: {
     start: Date;
@@ -41,11 +41,11 @@ export interface ComplianceReport {
   findings: SecretDetectionResult[];
   auditLogs: AuditLogEntry[];
   recommendations: string[];
-}
+};
 
 export class AuditLogger {
-  private logs: AuditLogEntry[] = [];
-  private logFile: string | undefined;
+  private readonly logs: AuditLogEntry[] = [];
+  private readonly logFile: string | undefined;
 
   constructor(logFile?: string) {
     this.logFile = logFile;
@@ -77,16 +77,16 @@ export class AuditLogger {
     let filtered = this.logs;
 
     if (filter?.user) {
-      filtered = filtered.filter(log => log.user === filter.user);
+      filtered = filtered.filter((log) => log.user === filter.user);
     }
     if (filter?.action) {
-      filtered = filtered.filter(log => log.action === filter.action);
+      filtered = filtered.filter((log) => log.action === filter.action);
     }
     if (filter?.resource) {
-      filtered = filtered.filter(log => log.resource.includes(filter.resource!));
+      filtered = filtered.filter((log) => log.resource.includes(filter.resource!));
     }
     if (filter?.since) {
-      filtered = filtered.filter(log => log.timestamp >= filter.since!);
+      filtered = filtered.filter((log) => log.timestamp >= filter.since!);
     }
 
     return filtered;
@@ -107,7 +107,7 @@ export class AuditLogger {
 }
 
 export class SecretDetector {
-  private patterns = [
+  private readonly patterns = [
     {
       name: 'AWS Access Key',
       pattern: /AKIA[0-9A-Z]{16}/g,
@@ -147,10 +147,10 @@ export class SecretDetector {
       const results: SecretDetectionResult[] = [];
 
       lines.forEach((line, index) => {
-        this.patterns.forEach(pattern => {
+        this.patterns.forEach((pattern) => {
           const matches = line.match(pattern.pattern);
           if (matches) {
-            matches.forEach(match => {
+            matches.forEach((match) => {
               results.push({
                 file: filePath,
                 line: index + 1,
@@ -180,7 +180,7 @@ export class SecretDetector {
       for (const entry of entries) {
         const fullPath = path.join(currentPath, entry.name);
 
-        if (exclude.some(pattern => fullPath.includes(pattern))) {
+        if (exclude.some((pattern) => fullPath.includes(pattern))) {
           continue;
         }
 
@@ -191,7 +191,7 @@ export class SecretDetector {
           results.push(...fileResults);
         }
       }
-    }
+    };
 
     await scanDir.call(this, dirPath);
     return results;
@@ -199,8 +199,8 @@ export class SecretDetector {
 }
 
 export class ComplianceReporter {
-  private auditLogger: AuditLogger;
-  private secretDetector: SecretDetector;
+  private readonly auditLogger: AuditLogger;
+  private readonly secretDetector: SecretDetector;
 
   constructor(auditLogger: AuditLogger, secretDetector: SecretDetector) {
     this.auditLogger = auditLogger;
@@ -208,7 +208,7 @@ export class ComplianceReporter {
   }
 
   async generateReport(
-    testResults: any[],
+    testResults: Array<{ name?: string }>,
     scanPaths: string[] = ['.'],
     period?: { start: Date; end: Date }
   ): Promise<ComplianceReport> {
@@ -238,13 +238,16 @@ export class ComplianceReporter {
     });
 
     // Calculate metrics
-    const securityTests = testResults.filter((test: any) =>
-      test.name?.toLowerCase().includes('security') ||
-      test.name?.toLowerCase().includes('auth') ||
-      test.name?.toLowerCase().includes('secret')
-    ).length;
+    const securityTests = testResults.filter((test) => {
+      const testName = typeof test.name === 'string' ? test.name.toLowerCase() : '';
+      return (
+        testName.includes('security') || testName.includes('auth') || testName.includes('secret')
+      );
+    }).length;
 
-    const vulnerabilitiesFound = findings.filter(f => f.severity === 'high' || f.severity === 'critical').length;
+    const vulnerabilitiesFound = findings.filter(
+      (f) => f.severity === 'high' || f.severity === 'critical'
+    ).length;
 
     // Simple compliance score calculation
     let complianceScore = 100;
@@ -306,7 +309,7 @@ export class ComplianceReporter {
 
     if (report.auditLogs.length > 0) {
       markdown += `## Audit Logs\n\n`;
-      report.auditLogs.slice(0, 10).forEach(log => {
+      report.auditLogs.slice(0, 10).forEach((log) => {
         markdown += `- ${log.timestamp.toISOString()}: ${log.action} by ${log.user} on ${log.resource}\n`;
       });
       if (report.auditLogs.length > 10) {
@@ -317,7 +320,7 @@ export class ComplianceReporter {
 
     if (report.recommendations.length > 0) {
       markdown += `## Recommendations\n\n`;
-      report.recommendations.forEach(rec => {
+      report.recommendations.forEach((rec) => {
         markdown += `- ${rec}\n`;
       });
       markdown += '\n';

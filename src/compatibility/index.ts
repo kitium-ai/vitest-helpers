@@ -8,16 +8,13 @@ import { vi } from 'vitest';
 export {
   createMockFunction,
   createMockObject,
+  type MockFunction,
   restoreSpy,
   spyOn,
-  type MockFunction,
 } from '@kitiumai/test-core';
 
 // Backward-compatible / documented aliases
-import {
-  createMockFunction as _createMockFunction,
-  sleep as _sleep,
-} from '@kitiumai/test-core';
+import { createMockFunction as _createMockFunction, sleep as _sleep } from '@kitiumai/test-core';
 
 /**
  * Alias for `createMockFunction` (older vitest-helpers exports).
@@ -36,44 +33,40 @@ export const delay = _sleep;
 
 export {
   createFixture,
-  FixtureManager,
-  getGlobalFixtureManager,
-  resetGlobalFixtureManager,
   type Fixture,
+  FixtureManager,
   type FixtureSetup,
   type FixtureTeardown,
+  getGlobalFixtureManager,
+  resetGlobalFixtureManager,
 } from '@kitiumai/test-core';
-
 export {
   createHttpMockManager,
   getGlobalHttpMockManager,
-  HttpMockManager,
-  HttpResponses,
-  resetGlobalHttpMockManager,
   type HttpMockHandler,
+  HttpMockManager,
   type HttpMockRequest,
   type HttpMockResponse,
+  HttpResponses,
+  resetGlobalHttpMockManager,
 } from '@kitiumai/test-core';
-
 export {
-  waitFor,
-  waitForValue,
-  retry,
-  sleep,
-  parallelLimit,
   createDeferred,
   type Deferred,
+  parallelLimit,
+  retry,
+  sleep,
+  waitFor,
+  waitForValue,
 } from '@kitiumai/test-core';
-
 export {
-  createBuilder,
-  createBuilderFactory,
   Builder,
   BuilderGenerators,
+  createBuilder,
+  createBuilderFactory,
   Factory,
   Sequence,
 } from '@kitiumai/test-core';
-
 export {
   createFactory,
   createFactoryWithBuilder,
@@ -82,14 +75,13 @@ export {
   type Generator,
   type PartialFactory,
 } from '@kitiumai/test-core';
-
 export {
   createLogger,
   expectLogs,
-  getTestLogger,
-  LogLevel,
   type GetLogsOptions,
+  getTestLogger,
   type LogExpectation,
+  LogLevel,
   type TestLogEntry,
   type TestLogger,
 } from '@kitiumai/test-core';
@@ -101,8 +93,6 @@ export {
 /**
  * Create a mock compatible with Vitest's vi.fn()
  */
-export function createVitestMock<T extends (...args: any[]) => any>(
+export const createVitestMock = <T extends (...args: any[]) => any>(
   implementation?: T
-): ReturnType<typeof vi.fn<T>> {
-  return vi.fn(implementation);
-}
+): ReturnType<typeof vi.fn<T>> => vi.fn(implementation);

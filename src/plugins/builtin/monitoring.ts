@@ -4,7 +4,7 @@
 
 import type { VitestPlugin } from '../index';
 
-export interface MonitoringConfig {
+export type MonitoringConfig = {
   enabled: boolean;
   metrics: {
     testDuration: boolean;
@@ -16,7 +16,7 @@ export interface MonitoringConfig {
     file: string | null;
     webhook: string | null;
   };
-}
+};
 
 const defaultConfig: MonitoringConfig = {
   enabled: true,

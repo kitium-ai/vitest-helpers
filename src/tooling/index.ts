@@ -11,21 +11,17 @@
 
 // Re-export file discovery utilities
 export {
-  discoverVitestTestFiles,
   DEFAULT_TEST_PATTERN,
+  discoverVitestTestFiles,
   type DiscoveryOptions,
 } from './file-discovery.js';
 
 // Re-export config resolution utilities
-export {
-  resolveConfigPath,
-  hasVitestConfig,
-  DEFAULT_CONFIG_FILENAMES,
-} from './config-resolver.js';
+export { DEFAULT_CONFIG_FILENAMES, hasVitestConfig, resolveConfigPath } from './config-resolver.js';
 
 // Re-export workspace diagnostics
 export {
   diagnoseVitestWorkspace,
-  type VitestWorkspaceDiagnostics,
   type DiagnosticsOptions,
+  type VitestWorkspaceDiagnostics,
 } from './workspace-diagnostics.js';

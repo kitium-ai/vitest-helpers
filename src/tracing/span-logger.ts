@@ -3,7 +3,9 @@
  * Single Responsibility: Log trace spans with structured data
  */
 
-export interface SpanData {
+import { createLogger } from '@kitiumai/logger';
+
+export type SpanData = {
   traceId: string;
   spanId: string;
   operationName: string;
@@ -11,7 +13,7 @@ export interface SpanData {
   duration: number;
   timestamp: string;
   metadata?: Record<string, unknown>;
-}
+};
 
 /**
  * Log a span with structured data
@@ -37,7 +39,8 @@ export function logSpan(
 
   // Only log if tracing is enabled
   if (process.env['VITEST_TRACE_ENABLED'] === 'true') {
-    console.log('[TRACE]', JSON.stringify(span));
+    const traceLogger = createLogger('development');
+    traceLogger.debug('[TRACE]', span);
   }
 }
 

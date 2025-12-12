@@ -12,13 +12,17 @@ export function setupBrowserTest(
     browser?: 'chromium' | 'firefox' | 'webkit';
     headless?: boolean;
   } = {}
-) {
-  const { provider = 'playwright', browser = 'chromium', headless = true } = options;
+): {
+  provider: 'playwright' | 'webdriverio';
+  name: 'chromium' | 'firefox' | 'webkit';
+  headless: boolean;
+} {
+  const { provider = 'playwright', browser = 'chromium', headless: isHeadless = true } = options;
 
   return {
     provider,
     name: browser,
-    headless,
+    headless: isHeadless,
   };
 }
 
@@ -42,7 +46,9 @@ export const BrowserHelpers = {
         throw new Error(`Element ${selector} not found within ${timeout}ms`);
       }
 
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await new Promise<void>((resolve) => {
+        setTimeout(resolve, 50);
+      });
     }
   },
 

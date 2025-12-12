@@ -10,7 +10,10 @@ import { mergeConfig, type UserConfig } from 'vitest/config';
  * Handles test property merging correctly
  */
 export function mergeConfigs(...configs: UserConfig[]): UserConfig {
-  return configs.reduce((acc, config) => mergeConfig(acc, config), {} as UserConfig);
+  return configs.reduce(
+    (accumulator, config) => mergeConfig(accumulator, config),
+    {} as UserConfig
+  );
 }
 
 /**

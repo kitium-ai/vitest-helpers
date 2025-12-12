@@ -2,32 +2,32 @@
  * Team collaboration utilities for shared test configurations and reports
  */
 
-export interface SharedConfig {
+export type SharedConfig = {
   id: string;
   name: string;
   description?: string;
-  config: Record<string, any>;
+  config: Record<string, unknown>;
   author: string;
   team: string;
   version: string;
   createdAt: Date;
   updatedAt: Date;
-}
+};
 
-export interface TestReport {
+export type TestReport = {
   id: string;
   suite: string;
-  results: any[];
-  metrics: any;
+  results: unknown[];
+  metrics: Record<string, unknown>;
   author: string;
   team: string;
   timestamp: Date;
   environment: Record<string, string>;
-}
+};
 
 export class CollaborationManager {
-  private configs = new Map<string, SharedConfig>();
-  private reports = new Map<string, TestReport>();
+  private readonly configs = new Map<string, SharedConfig>();
+  private readonly reports = new Map<string, TestReport>();
 
   // Shared configurations
   saveConfig(config: Omit<SharedConfig, 'id' | 'createdAt' | 'updatedAt'>): string {
@@ -48,12 +48,14 @@ export class CollaborationManager {
 
   listConfigs(team?: string): SharedConfig[] {
     const all = Array.from(this.configs.values());
-    return team ? all.filter(c => c.team === team) : all;
+    return team ? all.filter((c) => c.team === team) : all;
   }
 
   updateConfig(id: string, updates: Partial<SharedConfig>): boolean {
     const config = this.configs.get(id);
-    if (!config) return false;
+    if (!config) {
+      return false;
+    }
 
     Object.assign(config, updates, { updatedAt: new Date() });
     return true;
@@ -81,7 +83,7 @@ export class CollaborationManager {
 
   listReports(team?: string): TestReport[] {
     const all = Array.from(this.reports.values());
-    return team ? all.filter(r => r.team === team) : all;
+    return team ? all.filter((r) => r.team === team) : all;
   }
 
   // Team management
@@ -92,10 +94,8 @@ export class CollaborationManager {
     return {
       configs: teamConfigs.length,
       reports: teamReports.length,
-      members: new Set([
-        ...teamConfigs.map(c => c.author),
-        ...teamReports.map(r => r.author),
-      ]).size,
+      members: new Set([...teamConfigs.map((c) => c.author), ...teamReports.map((r) => r.author)])
+        .size,
     };
   }
 
@@ -129,7 +129,7 @@ export class CollaborationManager {
           });
         });
       }
-    } catch (error) {
+    } catch (_error) {
       throw new Error('Invalid import data format');
     }
   }

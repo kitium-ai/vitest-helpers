@@ -5,11 +5,11 @@
 
 import { defineWorkspace } from 'vitest/config';
 
-export interface WorkspaceProjectConfig {
+export type WorkspaceProjectConfig = {
   name: string;
   root: string;
   test?: Record<string, unknown>;
-}
+};
 
 /**
  * Setup a Vitest workspace with multiple projects

@@ -3,28 +3,28 @@
  * Single Responsibility: Integrate tracing with Vitest lifecycle
  */
 
-import type { LogContext } from '@kitiumai/logger';
-import { withLoggingContext } from '@kitiumai/logger';
-import { startTestTrace, endTestTrace } from './trace-operations.js';
+import { type LogContext, withLoggingContext } from '@kitiumai/logger';
+
+import { endTestTrace, startTestTrace } from './trace-operations.js';
 
 /**
  * Vitest task context interface
  */
-interface VitestTaskContext {
+type VitestTaskContext = {
   task: {
     name: string;
   };
-}
+};
 
 /**
  * Tracing hooks for Vitest tests
  */
-export interface TestTracingHooks {
+export type TestTracingHooks = {
   beforeEach: (context: VitestTaskContext) => void;
   afterEach: () => void;
-  withTrace: <T>(fn: () => Promise<T> | T) => Promise<T> | T;
+  withTrace: <T>(function_: () => Promise<T> | T) => Promise<T> | T;
   getCurrentTraceContext: () => LogContext | null;
-}
+};
 
 /**
  * Setup test tracing with Vitest lifecycle hooks
@@ -46,12 +46,12 @@ export function setupTestTracing(): TestTracingHooks {
     /**
      * Wrap a test body in a logging context so traceTest/traceChild can read it
      */
-    withTrace: <T>(fn: () => Promise<T> | T): Promise<T> | T => {
+    withTrace: <T>(function_: () => Promise<T> | T): Promise<T> | T => {
       if (!currentContext) {
-        return fn();
+        return function_();
       }
       // withLoggingContext expects Promise<T>, so we wrap and unwrap
-      const result = withLoggingContext(currentContext, () => Promise.resolve(fn()));
+      const result = withLoggingContext(currentContext, () => Promise.resolve(function_()));
       return result as Promise<T> | T;
     },
 

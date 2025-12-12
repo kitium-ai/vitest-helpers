@@ -14,7 +14,9 @@ export function createBenchmark(
     optimized?: () => void | Promise<void>;
     iterations?: number;
   }
-) {
+): {
+  toMatchBaseline: (options?: { tolerance?: number }) => boolean;
+} {
   const { baseline, optimized, iterations = 1000 } = options;
 
   vitestBench(
@@ -39,8 +41,8 @@ export function createBenchmark(
     /**
      * Assert that optimized version is faster than baseline
      */
-    toMatchBaseline: (options: { tolerance?: number } = {}) => {
-      const { tolerance = 0 } = options;
+    toMatchBaseline: (baselineOptions: { tolerance?: number } = {}) => {
+      const { tolerance = 0 } = baselineOptions;
       // This would need actual benchmark result comparison
       // Vitest's bench API would handle this
       return tolerance >= 0;
@@ -51,6 +53,10 @@ export function createBenchmark(
 /**
  * Quick benchmark helper
  */
-export function quickBench(name: string, fn: () => void | Promise<void>, iterations = 1000): void {
-  vitestBench(name, fn, { iterations });
+export function quickBench(
+  name: string,
+  function_: () => void | Promise<void>,
+  iterations = 1000
+): void {
+  vitestBench(name, function_, { iterations });
 }

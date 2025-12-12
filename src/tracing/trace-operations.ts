@@ -3,13 +3,10 @@
  * Single Responsibility: Execute operations with tracing context
  */
 
-import {
-  contextManager,
-  type LogContext,
-  withLoggingContext,
-} from '@kitiumai/logger';
-import { generateSpanId, generateTraceId } from './trace-id-generator.js';
+import { contextManager, type LogContext, withLoggingContext } from '@kitiumai/logger';
+
 import { logSpan } from './span-logger.js';
+import { generateSpanId, generateTraceId } from './trace-id-generator.js';
 
 /**
  * Trace a test operation with automatic span creation and logging
@@ -115,7 +112,7 @@ export function endTestTrace(): void {
  */
 export function withTestTrace<T>(
   testName: string,
-  fn: () => Promise<T> | T,
+  function_: () => Promise<T> | T,
   metadata?: Record<string, unknown>
 ): Promise<T> | T {
   const context = startTestTrace(testName);
@@ -123,6 +120,6 @@ export function withTestTrace<T>(
     context.metadata = { ...(context.metadata ?? {}), ...metadata };
   }
   // withLoggingContext expects Promise<T>, so we wrap the function
-  const result = withLoggingContext(context, () => Promise.resolve(fn()));
+  const result = withLoggingContext(context, () => Promise.resolve(function_()));
   return result as Promise<T> | T;
 }

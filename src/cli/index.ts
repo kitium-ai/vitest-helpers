@@ -2,21 +2,22 @@
  * Interactive CLI utilities for @kitiumai/vitest-helpers
  */
 
-import * as readline from 'readline';
-import { CIHelper } from '../ci';
-import { TestMonitor } from '../monitoring';
-import { collaborationManager } from '../collaboration';
+import * as readline from 'node:readline';
 
-export interface CLIConfig {
+import { type CIConfig, CIHelper } from '../ci';
+import { collaborationManager } from '../collaboration';
+import { TestMonitor } from '../monitoring';
+
+export type CLIConfig = {
   interactive: boolean;
   verbose: boolean;
   output: 'console' | 'file' | 'both';
   outputFile?: string;
-}
+};
 
 export class VitestCLI {
   private rl: readline.Interface | null = null;
-  private config: CLIConfig;
+  private readonly config: CLIConfig;
 
   constructor(config: Partial<CLIConfig> = {}) {
     this.config = {
@@ -41,9 +42,14 @@ export class VitestCLI {
     this.showWelcome();
     this.showMenu();
 
-    this.rl.on('line', async (input) => {
-      await this.handleCommand(input.trim());
-      this.showMenu();
+    this.rl.on('line', (input) => {
+      void (async () => {
+        try {
+          await this.handleCommand(input.trim());
+        } finally {
+          this.showMenu();
+        }
+      })();
     });
   }
 
@@ -109,20 +115,21 @@ Choose a command:
 
     const nodeVersion = await this.prompt('Node.js version', '18');
     const testCommand = await this.prompt('Test command', 'pnpm test');
-    const coverage = await this.confirm('Include coverage reporting?');
-    const parallel = await this.confirm('Enable parallel execution?');
+    const isCoverageEnabled = await this.confirm('Include coverage reporting?');
+    const isParallelEnabled = await this.confirm('Enable parallel execution?');
 
-    const config = CIHelper.generateConfig(platform as any, {
+    const selectedPlatform = platform as CIConfig['platform'];
+    const config = CIHelper.generateConfig(selectedPlatform, {
       nodeVersion,
       testCommand,
-      coverage,
-      parallel,
+      coverage: isCoverageEnabled,
+      parallel: isParallelEnabled,
     });
 
     this.output(`\nGenerated ${platform} configuration:\n${config}`);
 
-    const save = await this.confirm('Save to file?');
-    if (save) {
+    const isSaveEnabled = await this.confirm('Save to file?');
+    if (isSaveEnabled) {
       const filename = await this.prompt('Filename', `.${platform}ci.yml`);
       // In a real implementation, this would write to file
       this.output(`Would save to ${filename}`);
@@ -130,6 +137,8 @@ Choose a command:
   }
 
   private async startMonitoring(): Promise<void> {
+    await Promise.resolve();
+
     const monitor = new TestMonitor({
       enabled: true,
       collectMetrics: true,
@@ -154,25 +163,28 @@ Choose a command:
     );
 
     switch (action) {
-      case 'list-configs':
+      case 'list-configs': {
         const configs = collaborationManager.listConfigs();
         this.output(`Found ${configs.length} shared configurations:`);
-        configs.forEach(config => {
+        configs.forEach((config) => {
           this.output(`- ${config.name} (${config.team})`);
         });
         break;
-      case 'list-reports':
+      }
+      case 'list-reports': {
         const reports = collaborationManager.listReports();
         this.output(`Found ${reports.length} test reports:`);
-        reports.forEach(report => {
+        reports.forEach((report) => {
           this.output(`- ${report.suite} (${report.team})`);
         });
         break;
-      case 'team-stats':
+      }
+      case 'team-stats': {
         const team = await this.prompt('Team name');
         const stats = collaborationManager.getTeamStats(team);
         this.output(`Team "${team}" stats:`, JSON.stringify(stats, null, 2));
         break;
+      }
       default:
         this.output('Invalid action.');
     }
@@ -187,17 +199,19 @@ Choose a command:
     const choice = await this.prompt('Choose tool', '1-3');
 
     switch (choice) {
-      case '1':
+      case '1': {
         // Import memory optimizer dynamically to avoid issues
         const { memoryOptimizer } = await import('../performance');
         const stats = memoryOptimizer.getMemoryStats();
         this.output('Memory stats:', JSON.stringify(stats, null, 2));
         break;
-      case '2':
+      }
+      case '2': {
         const { cacheManager } = await import('../performance');
         await cacheManager.clear();
         this.output('Cache cleared.');
         break;
+      }
       case '3':
         this.output('Parallel execution configuration:');
         this.output('- Max workers: based on CPU cores');
@@ -210,13 +224,15 @@ Choose a command:
   }
 
   private async runNonInteractive(): Promise<void> {
+    await Promise.resolve();
+
     // Non-interactive mode - could be used for automation
     this.output('Running in non-interactive mode...');
     // Add automated tasks here
   }
 
   private async prompt(question: string, defaultValue?: string): Promise<string> {
-    return new Promise((resolve) => {
+    return await new Promise((resolve) => {
       const prompt = defaultValue ? `${question} (${defaultValue}): ` : `${question}: `;
       this.rl?.question(prompt, (answer) => {
         resolve(answer || defaultValue || '');
@@ -229,16 +245,18 @@ Choose a command:
     return answer.toLowerCase() === 'y' || answer.toLowerCase() === 'yes';
   }
 
-  private output(message: string, data?: any): void {
+  private output(message: string, data?: unknown): void {
     if (this.config.output === 'console' || this.config.output === 'both') {
-      console.log(message);
-      if (data) console.log(data);
+      console.info(message);
+      if (data) {
+        console.info(data);
+      }
     }
 
     if (this.config.output === 'file' || this.config.output === 'both') {
       // In a real implementation, this would write to file
       if (this.config.outputFile) {
-        console.log(`Would write to ${this.config.outputFile}`);
+        console.info(`Would write to ${this.config.outputFile}`);
       }
     }
   }

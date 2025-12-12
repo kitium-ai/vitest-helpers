@@ -11,26 +11,13 @@
  */
 
 // Re-export all public APIs for backward compatibility
+export { isTracingEnabled, logSpan, type SpanData } from './span-logger.js';
+export { setupTestTracing, type TestTracingHooks } from './test-hooks.js';
+export { generateSpanId, generateTraceId } from './trace-id-generator.js';
 export {
-  generateTraceId,
-  generateSpanId,
-} from './trace-id-generator.js';
-
-export {
-  logSpan,
-  isTracingEnabled,
-  type SpanData,
-} from './span-logger.js';
-
-export {
-  traceTest,
-  traceChild,
-  startTestTrace,
   endTestTrace,
+  startTestTrace,
+  traceChild,
+  traceTest,
   withTestTrace,
 } from './trace-operations.js';
-
-export {
-  setupTestTracing,
-  type TestTracingHooks,
-} from './test-hooks.js';

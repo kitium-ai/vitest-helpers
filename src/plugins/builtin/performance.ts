@@ -4,7 +4,7 @@
 
 import type { VitestPlugin } from '../index';
 
-export interface PerformanceConfig {
+export type PerformanceConfig = {
   enabled: boolean;
   caching: {
     enabled: boolean;
@@ -19,7 +19,7 @@ export interface PerformanceConfig {
     gcThreshold: number; // MB
     forceGC: boolean;
   };
-}
+};
 
 const defaultConfig: PerformanceConfig = {
   enabled: true,
@@ -30,7 +30,7 @@ const defaultConfig: PerformanceConfig = {
   },
   parallelization: {
     enabled: true,
-    maxWorkers: Math.max(1, require('os').cpus().length - 1),
+    maxWorkers: Math.max(1, require('node:os').cpus().length - 1),
   },
   memory: {
     gcThreshold: 512,
@@ -39,7 +39,7 @@ const defaultConfig: PerformanceConfig = {
 };
 
 class CacheManager {
-  private cache = new Map<string, { data: any; timestamp: number }>();
+  private readonly cache = new Map<string, { data: any; timestamp: number }>();
 
   set(key: string, data: any): void {
     this.cache.set(key, { data, timestamp: Date.now() });
@@ -47,7 +47,9 @@ class CacheManager {
 
   get(key: string): any | null {
     const entry = this.cache.get(key);
-    if (!entry) return null;
+    if (!entry) {
+      return null;
+    }
 
     const age = Date.now() - entry.timestamp;
     if (age > defaultConfig.caching.maxAge) {

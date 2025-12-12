@@ -4,6 +4,7 @@
  */
 
 import path from 'node:path';
+
 import { pathExists } from '@kitiumai/scripts/utils';
 
 /**

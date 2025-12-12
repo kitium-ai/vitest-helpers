@@ -3,14 +3,14 @@
  * Provides templates and helpers for various CI platforms
  */
 
-export interface CIConfig {
+export type CIConfig = {
   platform: 'github' | 'gitlab' | 'jenkins' | 'circleci' | 'azure';
   nodeVersion: string;
   testCommand: string;
   coverage: boolean;
   parallel: boolean;
   cache: boolean;
-}
+};
 
 export const ciTemplates = {
   github: (config: CIConfig) => `
@@ -148,11 +148,21 @@ export class CIHelper {
   }
 
   static getPlatform(): string | null {
-    if (process.env['GITHUB_ACTIONS']) return 'github';
-    if (process.env['GITLAB_CI']) return 'gitlab';
-    if (process.env['JENKINS_HOME']) return 'jenkins';
-    if (process.env['CIRCLECI']) return 'circleci';
-    if (process.env['AZURE_HTTP_USER_AGENT']) return 'azure';
+    if (process.env['GITHUB_ACTIONS']) {
+      return 'github';
+    }
+    if (process.env['GITLAB_CI']) {
+      return 'gitlab';
+    }
+    if (process.env['JENKINS_HOME']) {
+      return 'jenkins';
+    }
+    if (process.env['CIRCLECI']) {
+      return 'circleci';
+    }
+    if (process.env['AZURE_HTTP_USER_AGENT']) {
+      return 'azure';
+    }
     return null;
   }
 }

@@ -3,37 +3,37 @@
  * Parallel execution, memory optimization, and caching
  */
 
-import { promises as fs } from 'fs';
-import * as path from 'path';
-import * as crypto from 'crypto';
+import * as crypto from 'node:crypto';
+import { promises as fs } from 'node:fs';
+import * as path from 'node:path';
 
-export interface ParallelConfig {
+export type ParallelConfig = {
   maxWorkers: number;
   timeout: number;
   retryFailed: boolean;
   maxRetries: number;
-}
+};
 
-export interface CacheConfig {
+export type CacheConfig = {
   enabled: boolean;
   directory: string;
   maxAge: number;
   compression: boolean;
-}
+};
 
-export interface MemoryConfig {
+export type MemoryConfig = {
   gcThreshold: number;
   forceGC: boolean;
   maxHeapSize: number;
-}
+};
 
 export class ParallelExecutor {
   // Removed unused workers property
-  private config: ParallelConfig;
+  private readonly config: ParallelConfig;
 
   constructor(config: Partial<ParallelConfig> = {}) {
     this.config = {
-      maxWorkers: Math.max(1, require('os').cpus().length - 1),
+      maxWorkers: Math.max(1, require('node:os').cpus().length - 1),
       timeout: 30000,
       retryFailed: true,
       maxRetries: 3,
@@ -42,7 +42,7 @@ export class ParallelExecutor {
   }
 
   async executeParallel<T>(
-    tasks: (() => Promise<T>)[],
+    tasks: Array<() => Promise<T>>,
     onProgress?: (completed: number, total: number) => void
   ): Promise<T[]> {
     const results: T[] = [];
@@ -53,7 +53,7 @@ export class ParallelExecutor {
       try {
         const result = await this.executeWithTimeout(task(), this.config.timeout);
         results[index] = result;
-        onProgress?.(results.filter(r => r !== undefined).length, tasks.length);
+        onProgress?.(results.filter((r) => r !== undefined).length, tasks.length);
         return result;
       } catch (error) {
         errors.push(error as Error);
@@ -67,18 +67,18 @@ export class ParallelExecutor {
     await Promise.allSettled(promises);
 
     if (errors.length > 0) {
-      throw new Error(`Parallel execution failed: ${errors.map(e => e.message).join(', ')}`);
+      throw new Error(`Parallel execution failed: ${errors.map((e) => e.message).join(', ')}`);
     }
 
     return results;
   }
 
-  private async executeWithTimeout<T>(promise: Promise<T>, timeout: number): Promise<T> {
+  private executeWithTimeout<T>(promise: Promise<T>, timeout: number): Promise<T> {
     return Promise.race([
       promise,
-      new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error('Task timeout')), timeout)
-      ),
+      new Promise<never>((_resolve, reject) => {
+        setTimeout(() => reject(new Error('Task timeout')), timeout);
+      }),
     ]);
   }
 
@@ -91,7 +91,9 @@ export class ParallelExecutor {
           throw error;
         }
         // Exponential backoff
-        await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 100));
+        await new Promise<void>((resolve) => {
+          setTimeout(resolve, 2 ** attempt * 100);
+        });
       }
     }
     throw new Error('Max retries exceeded');
@@ -99,8 +101,8 @@ export class ParallelExecutor {
 }
 
 export class CacheManager {
-  private config: CacheConfig;
-  private cacheDir: string;
+  private readonly config: CacheConfig;
+  private readonly cacheDir: string;
 
   constructor(config: Partial<CacheConfig> = {}) {
     this.config = {
@@ -114,12 +116,16 @@ export class CacheManager {
   }
 
   async init(): Promise<void> {
-    if (!this.config.enabled) return;
+    if (!this.config.enabled) {
+      return;
+    }
     await fs.mkdir(this.cacheDir, { recursive: true });
   }
 
   async get<T>(key: string): Promise<T | null> {
-    if (!this.config.enabled) return null;
+    if (!this.config.enabled) {
+      return null;
+    }
 
     try {
       const filePath = this.getFilePath(key);
@@ -138,7 +144,9 @@ export class CacheManager {
   }
 
   async set<T>(key: string, value: T): Promise<void> {
-    if (!this.config.enabled) return;
+    if (!this.config.enabled) {
+      return;
+    }
 
     try {
       const filePath = this.getFilePath(key);
@@ -150,27 +158,29 @@ export class CacheManager {
   }
 
   async clear(): Promise<void> {
-    if (!this.config.enabled) return;
+    if (!this.config.enabled) {
+      return;
+    }
 
     try {
       const files = await fs.readdir(this.cacheDir);
-      await Promise.all(
-        files.map(file => fs.unlink(path.join(this.cacheDir, file)))
-      );
+      await Promise.all(files.map((file) => fs.unlink(path.join(this.cacheDir, file))));
     } catch (error) {
       console.warn('Cache clear failed:', error);
     }
   }
 
   async cleanup(): Promise<void> {
-    if (!this.config.enabled) return;
+    if (!this.config.enabled) {
+      return;
+    }
 
     try {
       const files = await fs.readdir(this.cacheDir);
       const now = Date.now();
 
       await Promise.all(
-        files.map(async file => {
+        files.map(async (file) => {
           const filePath = path.join(this.cacheDir, file);
           const stats = await fs.stat(filePath);
 
@@ -191,7 +201,7 @@ export class CacheManager {
 }
 
 export class MemoryOptimizer {
-  private config: MemoryConfig;
+  private readonly config: MemoryConfig;
 
   constructor(config: Partial<MemoryConfig> = {}) {
     this.config = {
@@ -209,6 +219,8 @@ export class MemoryOptimizer {
   }
 
   async optimize(): Promise<boolean> {
+    await Promise.resolve();
+
     if (this.shouldGC() && global.gc && this.config.forceGC) {
       global.gc();
       return true;
@@ -228,12 +240,12 @@ export class MemoryOptimizer {
     };
   }
 
-  monitorMemory(interval: number = 5000): () => void {
+  monitorMemory(interval = 5000): () => void {
     const intervalId = setInterval(() => {
       const stats = this.getMemoryStats();
       if (stats.shouldGC) {
         console.log('[MEMORY] High memory usage detected:', stats);
-        this.optimize();
+        void this.optimize();
       }
     }, interval);
 

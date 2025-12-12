@@ -3,7 +3,7 @@
  * Extensible architecture for custom test utilities and integrations
  */
 
-export interface VitestPlugin {
+export type VitestPlugin = {
   name: string;
   version: string;
   description?: string;
@@ -23,19 +23,19 @@ export interface VitestPlugin {
 
   // Configuration schema
   configSchema?: any;
-}
+};
 
-export interface PluginManager {
+export type PluginManager = {
   register(plugin: VitestPlugin): void;
   unregister(name: string): void;
   get(name: string): VitestPlugin | undefined;
   list(): VitestPlugin[];
   load(config: any): Promise<void>;
   unload(): Promise<void>;
-}
+};
 
 class DefaultPluginManager implements PluginManager {
-  private plugins = new Map<string, VitestPlugin>();
+  private readonly plugins = new Map<string, VitestPlugin>();
 
   register(plugin: VitestPlugin): void {
     if (this.plugins.has(plugin.name)) {

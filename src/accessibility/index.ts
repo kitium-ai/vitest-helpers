@@ -2,31 +2,31 @@
  * Accessibility testing utilities for WCAG compliance and a11y checks
  */
 
-export interface AccessibilityRule {
+export type AccessibilityRule = {
   id: string;
   name: string;
   description: string;
   level: 'A' | 'AA' | 'AAA';
   impact: 'minor' | 'moderate' | 'serious' | 'critical';
-  check: (element: any) => AccessibilityViolation | null;
-}
+  check: (element: unknown) => AccessibilityViolation | null;
+};
 
-export interface AccessibilityViolation {
+export type AccessibilityViolation = {
   rule: string;
   impact: string;
   description: string;
   element?: string;
   help: string;
   helpUrl?: string;
-}
+};
 
-export interface AccessibilityResult {
+export type AccessibilityResult = {
   violations: AccessibilityViolation[];
   passes: string[];
   incomplete: string[];
   inapplicable: string[];
   score: number; // 0-100
-}
+};
 
 export class AccessibilityTester {
   private rules: AccessibilityRule[] = [];
@@ -39,7 +39,9 @@ export class AccessibilityTester {
     this.rules.push(rule);
   }
 
-  async testElement(element: any): Promise<AccessibilityResult> {
+  async testElement(element: unknown): Promise<AccessibilityResult> {
+    await Promise.resolve();
+
     const violations: AccessibilityViolation[] = [];
     const passes: string[] = [];
     const incomplete: string[] = [];
@@ -53,7 +55,7 @@ export class AccessibilityTester {
         } else {
           passes.push(rule.id);
         }
-      } catch (error) {
+      } catch (_error) {
         incomplete.push(rule.id);
       }
     }
@@ -70,6 +72,8 @@ export class AccessibilityTester {
   }
 
   async testHTML(html: string): Promise<AccessibilityResult> {
+    await Promise.resolve();
+
     // In a real implementation, this would parse HTML and test each element
     // For now, we'll simulate with basic checks
     const violations: AccessibilityViolation[] = [];
@@ -105,7 +109,7 @@ export class AccessibilityTester {
     // Check for images without alt text
     const imgRegex = /<img[^>]*>/gi;
     const images = html.match(imgRegex) || [];
-    images.forEach(img => {
+    images.forEach((img) => {
       if (!img.includes('alt=')) {
         violations.push({
           rule: 'image-alt',
@@ -133,16 +137,23 @@ export class AccessibilityTester {
 
   private calculateScore(violations: AccessibilityViolation[], passes: string[]): number {
     const totalChecks = violations.length + passes.length;
-    if (totalChecks === 0) return 100;
+    if (totalChecks === 0) {
+      return 100;
+    }
 
     // Weight violations by impact
     const violationScore = violations.reduce((score, violation) => {
       switch (violation.impact) {
-        case 'minor': return score - 1;
-        case 'moderate': return score - 2;
-        case 'serious': return score - 3;
-        case 'critical': return score - 4;
-        default: return score - 2;
+        case 'minor':
+          return score - 1;
+        case 'moderate':
+          return score - 2;
+        case 'serious':
+          return score - 3;
+        case 'critical':
+          return score - 4;
+        default:
+          return score - 2;
       }
     }, 100);
 
@@ -158,15 +169,17 @@ export class AccessibilityTester {
         description: 'HTML element must have a lang attribute',
         level: 'A',
         impact: 'serious',
-        check: (element: any) => {
+        check: (element: unknown) => {
           // Simplified check
           if (typeof element === 'string') {
-            return element.includes('<html lang=') ? null : {
-              rule: 'html-lang',
-              impact: 'serious',
-              description: 'HTML element must have a lang attribute',
-              help: 'Add lang attribute to the html element',
-            };
+            return element.includes('<html lang=')
+              ? null
+              : {
+                  rule: 'html-lang',
+                  impact: 'serious',
+                  description: 'HTML element must have a lang attribute',
+                  help: 'Add lang attribute to the html element',
+                };
           }
           return null;
         },
@@ -177,14 +190,16 @@ export class AccessibilityTester {
         description: 'Images must have alt text',
         level: 'A',
         impact: 'critical',
-        check: (element: any) => {
+        check: (element: unknown) => {
           if (typeof element === 'string' && element.includes('<img')) {
-            return element.includes('alt=') ? null : {
-              rule: 'image-alt',
-              impact: 'critical',
-              description: 'Images must have alt text',
-              help: 'Add alt attribute to img elements',
-            };
+            return element.includes('alt=')
+              ? null
+              : {
+                  rule: 'image-alt',
+                  impact: 'critical',
+                  description: 'Images must have alt text',
+                  help: 'Add alt attribute to img elements',
+                };
           }
           return null;
         },
@@ -233,7 +248,7 @@ export class AccessibilityReporter {
 
     if (result.passes.length > 0) {
       report += `## Passed Checks\n\n`;
-      result.passes.forEach(rule => {
+      result.passes.forEach((rule) => {
         report += `- ${rule}\n`;
       });
       report += '\n';

@@ -42,7 +42,7 @@ declare module '@kitiumai/vitest-helpers/browser' {
 }
 
 declare module '@kitiumai/vitest-helpers/benchmarks' {
-  export function defineBenchmark(name: string, fn: () => void): any;
+  export function defineBenchmark(name: string, function_: () => void): any;
   export function createBenchmarkSuite(options?: any): any;
   export const BenchmarkReporters: { [name: string]: any };
 }
@@ -83,3 +83,6 @@ declare module '@kitiumai/vitest-helpers/tooling' {
   export function setupDevelopmentTools(options?: any): any;
   export function createToolingConfig(options?: any): any;
 }
+
+declare module 'pixelmatch';
+declare module 'pngjs';

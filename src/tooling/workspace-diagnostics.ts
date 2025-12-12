@@ -4,25 +4,26 @@
  */
 
 import { getProjectRoot, log } from '@kitiumai/scripts/utils';
+
+import { DEFAULT_CONFIG_FILENAMES, resolveConfigPath } from './config-resolver.js';
 import { discoverVitestTestFiles, type DiscoveryOptions } from './file-discovery.js';
-import { resolveConfigPath, DEFAULT_CONFIG_FILENAMES } from './config-resolver.js';
 
 /**
  * Diagnostic results for a Vitest workspace
  */
-export interface VitestWorkspaceDiagnostics {
+export type VitestWorkspaceDiagnostics = {
   configPath: string | null;
   hasConfig: boolean;
   testFiles: string[];
   issues: string[];
-}
+};
 
 /**
  * Options for workspace diagnostics
  */
-export interface DiagnosticsOptions extends DiscoveryOptions {
+export type DiagnosticsOptions = {
   configFilenames?: string[];
-}
+} & DiscoveryOptions;
 
 /**
  * Diagnose a Vitest workspace and report issues
