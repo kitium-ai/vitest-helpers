@@ -170,6 +170,152 @@ export const PresetConfigs = {
       },
     },
   }) as UserConfig,
+
+  /**
+   * Angular preset - for Angular applications
+   */
+  angular: defineConfig({
+    test: {
+      ...BASE_TEST_CONFIG,
+      name: 'kitium-angular',
+      environment: 'jsdom',
+      setupFiles: ['./vitest.setup.ts'],
+      globals: false, // Angular prefers explicit imports
+      coverage: {
+        enabled: true,
+        provider: 'v8',
+        reporter: ['text', 'html', 'lcov'],
+        exclude: [
+          'node_modules/',
+          'dist/',
+          '**/*.test.ts',
+          '**/*.spec.ts',
+          '**/*.config.ts',
+          '**/polyfills.ts',
+          '**/test.ts',
+        ],
+      },
+    },
+  }) as UserConfig,
+
+  /**
+   * Svelte preset - for Svelte applications
+   */
+  svelte: defineConfig({
+    test: {
+      ...BASE_TEST_CONFIG,
+      name: 'kitium-svelte',
+      environment: 'jsdom',
+      setupFiles: ['./vitest.setup.ts'],
+      coverage: {
+        enabled: true,
+        provider: 'v8',
+        reporter: ['text', 'html', 'lcov'],
+        exclude: [
+          'node_modules/',
+          'dist/',
+          '**/*.test.ts',
+          '**/*.spec.ts',
+          '**/*.config.ts',
+        ],
+      },
+    },
+  }) as UserConfig,
+
+  /**
+   * SolidJS preset - for SolidJS applications
+   */
+  solid: defineConfig({
+    test: {
+      ...BASE_TEST_CONFIG,
+      name: 'kitium-solid',
+      environment: 'jsdom',
+      setupFiles: ['./vitest.setup.ts'],
+      coverage: {
+        enabled: true,
+        provider: 'v8',
+        reporter: ['text', 'html', 'lcov'],
+      },
+    },
+  }) as UserConfig,
+
+  /**
+   * Next.js preset - for Next.js applications
+   */
+  nextjs: defineConfig({
+    test: {
+      ...BASE_TEST_CONFIG,
+      name: 'kitium-nextjs',
+      environment: 'jsdom',
+      setupFiles: ['./vitest.setup.ts'],
+      coverage: {
+        enabled: true,
+        provider: 'v8',
+        reporter: ['text', 'html', 'lcov'],
+        exclude: [
+          'node_modules/',
+          'dist/',
+          '.next/',
+          '**/*.test.tsx',
+          '**/*.spec.tsx',
+          '**/*.config.ts',
+          '**/next.config.js',
+          '**/next-env.d.ts',
+        ],
+      },
+    },
+  }) as UserConfig,
+
+  /**
+   * Nuxt.js preset - for Nuxt.js applications
+   */
+  nuxt: defineConfig({
+    test: {
+      ...BASE_TEST_CONFIG,
+      name: 'kitium-nuxt',
+      environment: 'jsdom',
+      setupFiles: ['./vitest.setup.ts'],
+      coverage: {
+        enabled: true,
+        provider: 'v8',
+        reporter: ['text', 'html', 'lcov'],
+        exclude: [
+          'node_modules/',
+          'dist/',
+          '.nuxt/',
+          '**/*.test.ts',
+          '**/*.spec.ts',
+          '**/*.config.ts',
+          '**/nuxt.config.js',
+        ],
+      },
+    },
+  }) as UserConfig,
+
+  /**
+   * Astro preset - for Astro applications
+   */
+  astro: defineConfig({
+    test: {
+      ...BASE_TEST_CONFIG,
+      name: 'kitium-astro',
+      environment: 'jsdom',
+      setupFiles: ['./vitest.setup.ts'],
+      coverage: {
+        enabled: true,
+        provider: 'v8',
+        reporter: ['text', 'html', 'lcov'],
+        exclude: [
+          'node_modules/',
+          'dist/',
+          '**/*.test.ts',
+          '**/*.spec.ts',
+          '**/*.config.ts',
+          '**/astro.config.mjs',
+        ],
+      },
+    },
+  }) as UserConfig,
 } as const;
 
 /**

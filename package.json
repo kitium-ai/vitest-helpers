@@ -77,6 +77,42 @@
     "./tooling": {
       "types": "./dist/tooling/index.d.ts",
       "default": "./dist/tooling/index.js"
+    },
+    "./plugins": {
+      "types": "./dist/plugins/index.d.ts",
+      "default": "./dist/plugins/index.js"
+    },
+    "./ci": {
+      "types": "./dist/ci/index.d.ts",
+      "default": "./dist/ci/index.js"
+    },
+    "./monitoring": {
+      "types": "./dist/monitoring/index.d.ts",
+      "default": "./dist/monitoring/index.js"
+    },
+    "./collaboration": {
+      "types": "./dist/collaboration/index.d.ts",
+      "default": "./dist/collaboration/index.js"
+    },
+    "./performance": {
+      "types": "./dist/performance/index.d.ts",
+      "default": "./dist/performance/index.js"
+    },
+    "./cli": {
+      "types": "./dist/cli/index.d.ts",
+      "default": "./dist/cli/index.js"
+    },
+    "./visual": {
+      "types": "./dist/visual/index.d.ts",
+      "default": "./dist/visual/index.js"
+    },
+    "./accessibility": {
+      "types": "./dist/accessibility/index.d.ts",
+      "default": "./dist/accessibility/index.js"
+    },
+    "./security": {
+      "types": "./dist/security/index.d.ts",
+      "default": "./dist/security/index.js"
     }
   },
   "files": [
@@ -174,7 +210,9 @@
   },
   "dependencies": {
     "@kitiumai/logger": "^3.0.1",
-    "@kitiumai/test-core": "^3.0.0"
+    "@kitiumai/test-core": "^3.0.0",
+    "pixelmatch": "^5.3.0",
+    "pngjs": "^7.0.0"
   },
   "peerDependencies": {
     "vitest": "^2.0.0",
@@ -194,6 +232,7 @@
     "@kitiumai/scripts": "^2.0.0",
     "@changesets/cli": "^2.27.1",
     "@types/node": "^24.10.1",
+    "@types/pixelmatch": "^5.2.4",
     "@typescript-eslint/eslint-plugin": "^8.16.0",
     "@typescript-eslint/parser": "^8.16.0",
     "eslint": "^9.15.0",

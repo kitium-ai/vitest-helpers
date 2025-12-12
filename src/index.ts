@@ -18,3 +18,14 @@ export * from './examples';
 export * from './config';
 export * from './lint';
 export * from './tooling';
+
+// Enterprise features
+export * from './plugins';
+export * from './ci';
+export * from './monitoring';
+export * from './collaboration';
+export * from './performance';
+export * from './cli';
+export * from './visual';
+export * from './accessibility';
+export * from './security';

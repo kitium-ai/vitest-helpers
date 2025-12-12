@@ -35,6 +35,36 @@ export const reactPreset = PresetConfigs.react;
 export const vuePreset = PresetConfigs.vue;
 
 /**
+ * Angular preset - for Angular applications
+ */
+export const angularPreset = PresetConfigs.angular;
+
+/**
+ * Svelte preset - for Svelte applications
+ */
+export const sveltePreset = PresetConfigs.svelte;
+
+/**
+ * SolidJS preset - for SolidJS applications
+ */
+export const solidPreset = PresetConfigs.solid;
+
+/**
+ * Next.js preset - for Next.js applications
+ */
+export const nextjsPreset = PresetConfigs.nextjs;
+
+/**
+ * Nuxt.js preset - for Nuxt.js applications
+ */
+export const nuxtPreset = PresetConfigs.nuxt;
+
+/**
+ * Astro preset - for Astro applications
+ */
+export const astroPreset = PresetConfigs.astro;
+
+/**
  * All available presets
  */
 export const VitestPresets = {
@@ -43,6 +73,12 @@ export const VitestPresets = {
   library: libraryPreset,
   react: reactPreset,
   vue: vuePreset,
+  angular: angularPreset,
+  svelte: sveltePreset,
+  solid: solidPreset,
+  nextjs: nextjsPreset,
+  nuxt: nuxtPreset,
+  astro: astroPreset,
 } as const;
 
 /**
