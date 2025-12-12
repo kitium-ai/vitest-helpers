@@ -2,6 +2,48 @@
 
 Vitest testing helpers with framework-specific utilities for modern JavaScript/TypeScript testing.
 
+## What is this package?
+
+`@kitiumai/vitest-helpers` is a comprehensive testing utility library built specifically for [Vitest](https://vitest.dev/), the next-generation testing framework for JavaScript and TypeScript. It provides a rich set of utilities, presets, and enterprise-grade features to enhance your testing workflow, making it easier to write, run, and maintain tests across different frameworks and environments.
+
+## Why do we need this package?
+
+Modern JavaScript/TypeScript applications require robust testing strategies that go beyond basic unit tests. This package addresses several key challenges:
+
+- **Framework Integration**: Seamless integration with popular frameworks (React, Vue, Angular, Svelte, etc.) through pre-configured presets
+- **Enterprise Testing Needs**: Advanced features like visual testing, accessibility testing, security auditing, and performance monitoring
+- **Team Collaboration**: Shared configurations and test reports for better team coordination
+- **CI/CD Integration**: Automated testing pipelines with support for multiple CI platforms
+- **Performance Optimization**: Parallel execution, caching, and memory management for faster test runs
+- **Developer Experience**: Interactive CLI tools and comprehensive utilities that reduce boilerplate and improve productivity
+
+## Competitor Comparison
+
+| Feature | @kitiumai/vitest-helpers | Vitest Plugins | Jest Helpers | Testing Library Utils |
+|---------|-------------------------|---------------|--------------|----------------------|
+| **Framework Presets** | ✅ 15+ frameworks | ❌ Limited | ❌ Manual | ❌ N/A |
+| **Visual Testing** | ✅ Built-in | ❌ External plugins | ❌ External | ❌ N/A |
+| **Accessibility Testing** | ✅ WCAG compliance | ❌ External | ❌ External | ❌ N/A |
+| **Security Auditing** | ✅ Secret detection | ❌ External | ❌ External | ❌ N/A |
+| **Performance Monitoring** | ✅ Parallel execution | ❌ Basic | ❌ Basic | ❌ N/A |
+| **CI/CD Integration** | ✅ 4+ platforms | ❌ Manual | ❌ Manual | ❌ N/A |
+| **Team Collaboration** | ✅ Shared configs | ❌ N/A | ❌ N/A | ❌ N/A |
+| **Interactive CLI** | ✅ Full-featured | ❌ N/A | ❌ N/A | ❌ N/A |
+| **Enterprise Features** | ✅ Monitoring, compliance | ❌ Limited | ❌ Limited | ❌ N/A |
+| **Tree-shaking** | ✅ Modular imports | ✅ Varies | ✅ Varies | ✅ Varies |
+
+## Unique Selling Proposition (USP)
+
+**"Enterprise-Ready Testing Ecosystem for Modern JavaScript"**
+
+- **Framework-Agnostic Core**: Built on `@kitiumai/test-core` for consistent testing patterns across projects
+- **Zero-Config Presets**: One-line setup for complex testing scenarios
+- **Enterprise Features**: Visual testing, accessibility, security, and compliance reporting out-of-the-box
+- **Performance First**: Optimized for speed with parallel execution and intelligent caching
+- **Team-Centric**: Collaboration tools and shared configurations for large teams
+- **Extensible Architecture**: Plugin system for custom testing needs
+- **Production Proven**: Used in production environments with comprehensive monitoring
+
 ## Installation
 
 ```bash
@@ -36,6 +78,70 @@ npm install @kitiumai/vitest-helpers vitest
 - ♿ **Accessibility Testing** - WCAG compliance and a11y checks
 - 🔒 **Security & Compliance** - Audit logging, secret detection, and compliance reporting
 - 🧰 **Framework-Agnostic** - Built on @kitiumai/test-core
+
+## All Exported APIs
+
+This package exports a comprehensive set of APIs organized by functionality. All APIs from `@kitiumai/test-core` are re-exported for convenience.
+
+### Core Testing Utilities (from @kitiumai/test-core)
+- `createMockFunction`, `createMockObject`, `restoreSpy`, `spyOn`
+- `createFixture`, `FixtureManager`, `Fixture`, `FixtureSetup`, `FixtureTeardown`
+- `createHttpMockManager`, `HttpMockManager`, `HttpMockRequest`, `HttpMockResponse`, `HttpResponses`
+- `createDeferred`, `Deferred`, `parallelLimit`, `retry`, `sleep`, `waitFor`, `waitForValue`
+- `Builder`, `BuilderGenerators`, `createBuilder`, `createBuilderFactory`
+- `Factory`, `Sequence`, `createFactory`, `createFactoryWithBuilder`, `DataGenerators`, `Factories`
+- `createLogger`, `expectLogs`, `LogLevel`, `TestLogger`, `TestLogEntry`, `LogExpectation`
+
+### Compatibility Layer
+- `createMockFn`, `mockFunction`, `delay`, `createVitestMock`
+
+### Setup & Configuration
+- `createVitestSetup`, `definePreset`, `createWorkspaceConfig`, `setupPresets`
+- `developmentPreset`, `ciPreset`, `libraryPreset`, `reactPreset`, `vuePreset`, `angularPreset`, `sveltePreset`, `solidPreset`, `nextjsPreset`, `nuxtPreset`, `astroPreset`, `VitestPresets`, `createCustomPreset`
+
+### CI/CD Integration
+- `CIHelper`, `CIConfig`
+
+### Monitoring
+- `TestMonitor`, `MonitoringTestMetrics`, `MonitoringConfig`, `globalMonitor`
+
+### Collaboration
+- `CollaborationManager`, `SharedConfig`, `TestReport`, `collaborationManager`
+
+### Performance
+- `ParallelExecutor`, `CacheManager`, `MemoryOptimizer`, `ParallelConfig`, `CacheConfig`, `MemoryConfig`
+- `parallelExecutor`, `cacheManager`, `memoryOptimizer`
+
+### CLI Tools
+- `VitestCLI`, `CLIConfig`, `createCLI`
+
+### Visual Testing
+- `VisualTester`, `VisualTestReporter`, `VisualTestConfig`, `VisualTestResult`
+- `visualTester`, `visualReporter`
+
+### Accessibility Testing
+- `AccessibilityTester`, `AccessibilityReporter`, `AccessibilityRule`, `AccessibilityViolation`, `AccessibilityResult`
+- `accessibilityTester`, `accessibilityReporter`
+
+### Security & Compliance
+- `AuditLogger`, `SecretDetector`, `ComplianceReporter`, `AuditLogEntry`, `SecretDetectionResult`, `ComplianceReport`
+- `auditLogger`, `secretDetector`, `complianceReporter`
+
+### Migration Tools
+- `convertJestConfigToVitest`, `JestToVitestMapping`, `migrationSteps`, `codeTransformations`
+
+### Additional Modules
+- Benchmarks: `defineBenchmark`, `createBenchmarkSuite`, `BenchmarkReporters`
+- Browser: `createBrowserConfig`, `setupBrowserPool`, `BrowserTypes`
+- Reporters: `createCustomReporter`, `BuiltInReporters`
+- Tracing: `enableDistributedTracing`, `createTracingContext`, `TracingIntegrations`
+- Examples: `getExample`, `AvailableExamples`
+- Config: `createVitestConfig`, `mergeVitestConfigs`
+- Lint: `createVitestLintConfig`, `configureLinting`
+- Tooling: `setupDevelopmentTools`, `createToolingConfig`
+- Plugins: `pluginManager`, `monitoringPlugin`, `performancePlugin` (and more)
+
+For detailed API documentation, see the [API References](#api-references) section below.
 
 ## Quick Start
 
