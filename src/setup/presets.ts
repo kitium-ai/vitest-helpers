@@ -1,120 +1,38 @@
 /**
  * Vitest configuration presets
  * Pre-configured setups for common scenarios
+ *
+ * NOTE: This module re-exports from the centralized preset registry for backward compatibility.
+ * For new code, prefer importing directly from '../config/preset-registry.js'
  */
 
-import { defineConfig, type UserConfig } from 'vitest/config';
+import type { UserConfig } from 'vitest/config';
+import { PresetConfigs, createCustomPreset as createPreset } from '../config/preset-registry.js';
 
 /**
  * Development preset - fast feedback
  */
-export const developmentPreset = defineConfig({
-  test: {
-    globals: true,
-    environment: 'node',
-    passWithNoTests: true,
-    watch: true,
-    restoreMocks: true,
-    clearMocks: true,
-    mockReset: true,
-    coverage: {
-      enabled: false,
-    },
-  },
-}) as UserConfig;
+export const developmentPreset = PresetConfigs.development;
 
 /**
  * CI preset - comprehensive testing
  */
-export const ciPreset = defineConfig({
-  test: {
-    globals: true,
-    environment: 'node',
-    passWithNoTests: false,
-    watch: false,
-    restoreMocks: true,
-    clearMocks: true,
-    mockReset: true,
-    coverage: {
-      enabled: true,
-      provider: 'v8',
-      reporter: ['text', 'json', 'html', 'lcov'],
-      exclude: [
-        'node_modules/',
-        'dist/',
-        '**/*.test.ts',
-        '**/*.spec.ts',
-        '**/*.config.ts',
-        '**/types.ts',
-      ],
-      thresholds: {
-        lines: 80,
-        functions: 80,
-        branches: 80,
-        statements: 80,
-      },
-    },
-  },
-}) as UserConfig;
+export const ciPreset = PresetConfigs.ci;
 
 /**
  * Library preset - for testing library packages
  */
-export const libraryPreset = defineConfig({
-  test: {
-    globals: true,
-    environment: 'node',
-    passWithNoTests: false,
-    restoreMocks: true,
-    clearMocks: true,
-    mockReset: true,
-    coverage: {
-      enabled: true,
-      provider: 'v8',
-      reporter: ['text', 'lcov'],
-      thresholds: {
-        lines: 90,
-        functions: 90,
-        branches: 85,
-        statements: 90,
-      },
-    },
-  },
-}) as UserConfig;
+export const libraryPreset = PresetConfigs.library;
 
 /**
  * React preset - for React applications
  */
-export const reactPreset = defineConfig({
-  test: {
-    globals: true,
-    environment: 'jsdom',
-    setupFiles: ['./vitest.setup.ts'],
-    restoreMocks: true,
-    clearMocks: true,
-    mockReset: true,
-    coverage: {
-      enabled: true,
-      provider: 'v8',
-      reporter: ['text', 'html'],
-      exclude: ['node_modules/', 'dist/', '**/*.test.tsx', '**/*.spec.tsx', '**/*.config.ts'],
-    },
-  },
-}) as UserConfig;
+export const reactPreset = PresetConfigs.react;
 
 /**
  * Vue preset - for Vue applications
  */
-export const vuePreset = defineConfig({
-  test: {
-    globals: true,
-    environment: 'jsdom',
-    setupFiles: ['./vitest.setup.ts'],
-    restoreMocks: true,
-    clearMocks: true,
-    mockReset: true,
-  },
-}) as UserConfig;
+export const vuePreset = PresetConfigs.vue;
 
 /**
  * All available presets
@@ -125,7 +43,7 @@ export const VitestPresets = {
   library: libraryPreset,
   react: reactPreset,
   vue: vuePreset,
-};
+} as const;
 
 /**
  * Create a custom preset by merging with a base
@@ -134,13 +52,5 @@ export function createCustomPreset(
   base: keyof typeof VitestPresets,
   overrides: UserConfig
 ): UserConfig {
-  const baseConfig = VitestPresets[base];
-  return defineConfig({
-    ...baseConfig,
-    ...overrides,
-    test: {
-      ...baseConfig.test,
-      ...overrides.test,
-    },
-  }) as UserConfig;
+  return createPreset(base, overrides);
 }

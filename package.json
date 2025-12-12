@@ -173,8 +173,8 @@
     "release": "pnpm version && pnpm install --lockfile-only"
   },
   "dependencies": {
-    "@kitiumai/logger": "^2.0.1",
-    "@kitiumai/test-core": "^2.0.1"
+    "@kitiumai/logger": "^3.0.1",
+    "@kitiumai/test-core": "^3.0.0"
   },
   "peerDependencies": {
     "vitest": "^2.0.0",
@@ -189,9 +189,9 @@
     }
   },
   "devDependencies": {
-    "@kitiumai/config": "^2.0.1",
-    "@kitiumai/lint": "^2.0.1",
-    "@kitiumai/scripts": "^1.0.0",
+    "@kitiumai/config": "^3.1.4",
+    "@kitiumai/lint": "^3.0.0",
+    "@kitiumai/scripts": "^2.0.0",
     "@changesets/cli": "^2.27.1",
     "@types/node": "^24.10.1",
     "@typescript-eslint/eslint-plugin": "^8.16.0",
@@ -202,12 +202,11 @@
     "prettier": "^3.6.2",
     "rimraf": "^5.0.5",
     "typescript": "^5.6.0",
-    "vitest": "^2.0.0"
+    "vitest": "^2.1.8"
   },
   "pnpm": {
     "overrides": {
-      "lodash.get": "npm:lodash@^4.17.21",
-      "subscriptions-transport-ws": "^0.9.19"
+      "lodash.get": "npm:lodash@^4.17.21"
     }
   }
 }

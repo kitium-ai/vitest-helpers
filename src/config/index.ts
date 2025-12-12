@@ -1,14 +1,17 @@
 import baseVitestConfig from '@kitiumai/config/vitest.config.base.js';
-import { mergeConfig } from 'vitest/config';
-import type { UserConfig } from 'vitest';
+import { mergeConfig, type UserConfig } from 'vitest/config';
+import { getPreset, type PresetName } from './preset-registry.js';
 
-type TestOverrides = Record<string, unknown>;
-type VitestConfigWithTest = UserConfig & { test?: Record<string, unknown> };
-
+/**
+ * Legacy preset names for backward compatibility
+ */
 export type KitiumVitestPresetName = 'local' | 'ci' | 'library' | 'browser';
 
+/**
+ * Configuration options for creating a Kitium Vitest config
+ */
 export interface KitiumVitestConfigOptions {
-  preset?: KitiumVitestPresetName;
+  preset?: PresetName;
   environment?: string;
   coverage?: boolean | Record<string, unknown>;
   reporters?: unknown;
@@ -17,38 +20,9 @@ export interface KitiumVitestConfigOptions {
   projectName?: string;
 }
 
-const presetTestConfigs: Record<KitiumVitestPresetName, VitestConfigWithTest> = {
-  local: {
-    test: {
-      name: 'kitium-local',
-      environment: 'node',
-    },
-  },
-  ci: {
-    test: {
-      name: 'kitium-ci',
-      environment: 'node',
-      coverage: { reporter: ['text', 'lcov', 'html'] },
-      reporters: ['default'],
-    },
-  },
-  library: {
-    test: {
-      name: 'kitium-library',
-      environment: 'node',
-      coverage: { reporter: ['text', 'lcov'] },
-      reporters: ['default'],
-    },
-  },
-  browser: {
-    test: {
-      name: 'kitium-browser',
-      environment: 'jsdom',
-      reporters: ['default'],
-    },
-  },
-};
-
+/**
+ * Create a Vitest configuration with Kitium presets and customizations
+ */
 export function createKitiumVitestConfig(options: KitiumVitestConfigOptions = {}): UserConfig {
   const {
     preset = 'local',
@@ -60,9 +34,12 @@ export function createKitiumVitestConfig(options: KitiumVitestConfigOptions = {}
     projectName,
   } = options;
 
-  const baseConfig = mergeConfig(loadBaseVitestConfig(), presetTestConfigs[preset]);
+  // Start with base config and selected preset
+  const baseConfig = loadBaseVitestConfig();
+  const presetConfig = getPreset(preset);
 
-  const testOverrides: Partial<TestOverrides> = {};
+  // Build test-specific overrides
+  const testOverrides: Record<string, unknown> = {};
 
   if (environment) {
     testOverrides['environment'] = environment;
@@ -73,7 +50,7 @@ export function createKitiumVitestConfig(options: KitiumVitestConfigOptions = {}
       typeof coverage === 'boolean'
         ? coverage
           ? { reporter: ['text', 'html', 'lcov'] }
-          : undefined
+          : { enabled: false }
         : coverage;
   }
 
@@ -89,22 +66,38 @@ export function createKitiumVitestConfig(options: KitiumVitestConfigOptions = {}
     testOverrides['name'] = projectName;
   }
 
-  const optionConfig: UserConfig =
-    Object.keys(testOverrides).length > 0 ? ({ test: testOverrides } as UserConfig) : {};
+  // Build the test overrides config
+  const testConfig: UserConfig = Object.keys(testOverrides).length > 0
+    ? { test: testOverrides }
+    : {};
 
-  const overrideConfig: UserConfig = overrides ?? {};
+  // Merge all configs in order: base -> preset -> test overrides -> user overrides
+  let result = mergeConfig(baseConfig, presetConfig);
+  result = mergeConfig(result, testConfig);
+  if (overrides) {
+    result = mergeConfig(result, overrides);
+  }
 
-  return mergeConfig(baseConfig, mergeConfig(optionConfig, overrideConfig));
+  return result;
 }
 
+/**
+ * Extend Kitium Vitest config with custom overrides
+ */
 export function extendKitiumVitestConfig(overrides: UserConfig): UserConfig {
   return createKitiumVitestConfig({ overrides });
 }
 
+/**
+ * Load the base Kitium Vitest configuration
+ */
 export function loadKitiumVitestBaseConfig(): UserConfig {
-  return mergeConfig(loadBaseVitestConfig(), {});
+  return loadBaseVitestConfig();
 }
 
+/**
+ * Preset factory functions for backward compatibility
+ */
 export const KitiumVitestPresets: Record<KitiumVitestPresetName, () => UserConfig> = {
   local: () => createKitiumVitestConfig({ preset: 'local' }),
   ci: () => createKitiumVitestConfig({ preset: 'ci' }),
@@ -112,6 +105,13 @@ export const KitiumVitestPresets: Record<KitiumVitestPresetName, () => UserConfi
   browser: () => createKitiumVitestConfig({ preset: 'browser' }),
 };
 
+/**
+ * Load base Vitest configuration from @kitiumai/config
+ */
 function loadBaseVitestConfig(): UserConfig {
   return baseVitestConfig as UserConfig;
 }
+
+// Re-export preset registry for advanced usage
+export { getPreset, type PresetName } from './preset-registry.js';
+export { CoveragePresets, getCoverageConfig, createCoverageConfig } from './coverage-config.js';

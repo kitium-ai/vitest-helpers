@@ -6,12 +6,33 @@ import { vi } from 'vitest';
 
 // Re-export test-core utilities that integrate cleanly with Vitest
 export {
-  createMockFn,
+  createMockFunction,
   createMockObject,
   restoreSpy,
   spyOn,
   type MockFunction,
 } from '@kitiumai/test-core';
+
+// Backward-compatible / documented aliases
+import {
+  createMockFunction as _createMockFunction,
+  sleep as _sleep,
+} from '@kitiumai/test-core';
+
+/**
+ * Alias for `createMockFunction` (older vitest-helpers exports).
+ */
+export const createMockFn = _createMockFunction;
+
+/**
+ * Alias for documented `mockFunction` API name.
+ */
+export const mockFunction = _createMockFunction;
+
+/**
+ * Alias for documented `delay` API name.
+ */
+export const delay = _sleep;
 
 export {
   createFixture,
